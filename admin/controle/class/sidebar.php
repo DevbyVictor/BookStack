@@ -97,7 +97,7 @@ class Sidebar {
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingReservas">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReservas" aria-expanded="false" aria-controls="collapseReservas">
-                        Reservas
+                        Reservas/Empréstimos
                     </button>
                 </h2>
                 <div id="collapseReservas" class="accordion-collapse collapse" aria-labelledby="headingReservas" data-bs-parent="#accordionSidebar">
@@ -107,7 +107,7 @@ class Sidebar {
                                 <a class="nav-link" href="#">Cadastrar Reservas</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="?p=reservas">Consultar Reservas</a>
+                                <a class="nav-link" href="?p=consultar_reservas">Consultar Reservas</a>
                             </li>
                         </ul>
                     </div>

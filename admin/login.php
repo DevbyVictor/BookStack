@@ -66,7 +66,10 @@ if (isset($_SESSION['aluno_id'])) {
             </div>
         </div>
         <a href='logout_aluno.php'><button type='button' class='button m-2 btn btn-md btn-outline-warning btn-dark'>Sair</button></a>
-        <a href='historico_reservas.php'><button type='button' class='button m-2 btn btn-md btn-outline-success btn-dark'>Histórico de Reservas</button></a>    
+       <a href='livros/historico_reservas.php?p=historico'>
+    <button type='button' class='button m-2 btn btn-md btn-outline-success btn-dark'>Histórico de Reservas</button>
+</a>
+
     </div>
 </div>
 ";

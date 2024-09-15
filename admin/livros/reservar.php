@@ -58,6 +58,25 @@ try {
         exit;
     }
 
+    // Verificar se o aluno cancelou a reserva recentemente
+    $query = "SELECT * FROM reservas WHERE livro_id = ? AND aluno_id = ? AND status = 'cancelado' ORDER BY data_cancelamento DESC LIMIT 1";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([$livro_id, $aluno_id]);
+    $reserva_cancelada = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($reserva_cancelada) {
+        // Verificar se já passaram 12 horas desde o cancelamento
+        $data_cancelamento = new DateTime($reserva_cancelada['data_cancelamento']);
+        $agora = new DateTime();
+        $intervalo = $agora->diff($data_cancelamento);
+
+        // Se o intervalo for menor que 12 horas, impedir nova reserva
+        if ($intervalo->h < 12) {
+            echo "Você deve esperar " . (12 - $intervalo->h) . " horas para reservar este livro novamente.";
+            exit;
+        }
+    }
+
     // Inserir a nova reserva
     $data_reserva = date('Y-m-d');
     $data_devolucao = date('Y-m-d', strtotime('+7 days'));

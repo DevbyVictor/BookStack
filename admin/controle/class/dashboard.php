@@ -53,8 +53,8 @@ class Dashboard
                 case 'editar_livro':
                     include_once 'editar_livros.php';
                     break;
-                case 'reservas':
-                    include_once 'reservas.php';
+                case 'consultar_reservas':
+                    include_once 'consultar_reservas.php';
                     break;
                 case 'excluir_livro':
                     break;
