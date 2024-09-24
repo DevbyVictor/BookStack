@@ -39,7 +39,7 @@ try {
     $query = "SELECT COUNT(*) as reservas_ativas FROM reservas WHERE livro_id = ? AND status = 'reservado'";
     $stmt = $conn->prepare($query);
     $stmt->execute([$livro_id]);
-    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);  // Usar fetch() para obter uma linha
     $reservas_ativas = $resultado['reservas_ativas'];
 
     // Verificar se ainda há exemplares disponíveis para reserva
@@ -52,8 +52,9 @@ try {
     $query = "SELECT * FROM reservas WHERE livro_id = ? AND aluno_id = ? AND status = 'reservado'";
     $stmt = $conn->prepare($query);
     $stmt->execute([$livro_id, $aluno_id]);
+    $reserva_existente = $stmt->fetch(PDO::FETCH_ASSOC);  // Usar fetch() para obter uma linha
 
-    if ($stmt->rowCount() > 0) {
+    if ($reserva_existente) {
         echo "Você já reservou este livro.";
         exit;
     }
@@ -62,23 +63,29 @@ try {
     $query = "SELECT * FROM reservas WHERE livro_id = ? AND aluno_id = ? AND status = 'cancelado' ORDER BY data_cancelamento DESC LIMIT 1";
     $stmt = $conn->prepare($query);
     $stmt->execute([$livro_id, $aluno_id]);
-    $reserva_cancelada = $stmt->fetch(PDO::FETCH_ASSOC);
+    $reserva_cancelada = $stmt->fetch(PDO::FETCH_ASSOC);  // Usar fetch() para obter uma linha
 
     if ($reserva_cancelada) {
         // Verificar se já passaram 12 horas desde o cancelamento
         $data_cancelamento = new DateTime($reserva_cancelada['data_cancelamento']);
         $agora = new DateTime();
-        $intervalo = $agora->diff($data_cancelamento);
+        
+        // Calcular a diferença em segundos
+        $intervalo_segundos = $agora->getTimestamp() - $data_cancelamento->getTimestamp();
+        
+        // Converter para horas
+        $horas_passadas = $intervalo_segundos / 3600;
 
         // Se o intervalo for menor que 12 horas, impedir nova reserva
-        if ($intervalo->h < 12) {
-            echo "Você deve esperar " . (12 - $intervalo->h) . " horas para reservar este livro novamente.";
+        if ($horas_passadas < 12) {
+            $horas_restantes = 12 - $horas_passadas;
+            echo "Você deve esperar " . ceil($horas_restantes) . " horas para reservar este livro novamente.";
             exit;
         }
     }
 
     // Inserir a nova reserva
-    $data_reserva = date('Y-m-d');
+    $data_reserva = date('Y-m-d H:i:s');
     $data_devolucao = date('Y-m-d', strtotime('+7 days'));
 
     $query = "INSERT INTO reservas (livro_id, aluno_id, data_reserva, data_devolucao, status) 

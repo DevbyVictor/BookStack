@@ -8,25 +8,30 @@ if (!isset($_SESSION['aluno_id'])) {
 }
 
 $aluno_id = $_SESSION['aluno_id'];  // Pega o ID do aluno da sessão
-$livro_id = $_POST['livro_id'];     // ID do livro que está sendo cancelado
+$reserva_id = $_POST['reserva_id']; // ID da reserva que está sendo cancelada
 
 require_once '../includes/db_connect.php';  // Conectar ao banco de dados
 $conn = Conectar::getInstance();
 
-// Verificar se o aluno já fez uma reserva desse livro e se pode cancelar
-$query = "SELECT * FROM reservas WHERE aluno_id = ? AND livro_id = ? AND status = 'reservado'";
+// Verificar se a reserva pertence ao aluno e se está no status "reservado"
+$query = "SELECT * FROM reservas WHERE id = ? AND aluno_id = ? AND status = 'reservado'";
 $stmt = $conn->prepare($query);
-$stmt->execute([$aluno_id, $livro_id]);
-$reserva = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt->execute([$reserva_id, $aluno_id]);
+$reserva = $stmt->fetch(PDO::FETCH_ASSOC);  // Usar fetch() para obter uma linha
 
 if ($reserva) {
-    // Marcar a reserva como cancelada e registrar a data do cancelamento
+    // Atualizar o status da reserva para 'cancelado' e registrar a data de cancelamento
     $query = "UPDATE reservas SET status = 'cancelado', data_cancelamento = NOW() WHERE id = ?";
     $stmt = $conn->prepare($query);
-    $stmt->execute([$reserva['id']]);
-    
-    echo "Reserva cancelada com sucesso.";
+    $stmt->execute([$reserva_id]);
+
+    // Armazenar a mensagem de sucesso na sessão
+    $_SESSION['mensagem_sucesso'] = "Reserva cancelada com sucesso!";
 } else {
-    echo "Não foi possível cancelar a reserva.";
+    $_SESSION['mensagem_erro'] = "Não foi possível cancelar a reserva.";
 }
+
+// Redirecionar de volta para a página de histórico
+header("Location: ../livros/historico_reservas.php?p=historico");
+exit();
 ?>
