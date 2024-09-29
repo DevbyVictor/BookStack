@@ -1,5 +1,5 @@
 <?php
-session_start();  // Iniciar a sessão
+@session_start();  // Iniciar a sessão
 
 include_once '../includes/db_connect.php';
 $conn = Conectar::getInstance();

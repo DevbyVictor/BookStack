@@ -13,22 +13,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conheça o Bookstack</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <title>Apresentação - BookStack</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <style>
-        .hero {
-            position: relative;
-            background: url('img/background-presentation.jpeg') no-repeat center center;
-            background-size: cover;
-            color: #fff;
-            height: 80vh;
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            /* Fundo claro geral */
+            color: #111;
+            overflow-x: hidden;
+        }
+
+        .hero-content {
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            padding: 0;
+            max-width: 1200px;
+            /* Limitar a largura máxima */
+            margin: 0 auto;
+            /* Centralizar conteúdo */
+            gap: 30px;
+            /* Espaçamento entre texto e GIF */
         }
 
+        .hero-text {
+            max-width: 600px;
+            /* Limitar a largura do texto */
+        }
+
+        .hero-gif {
+            flex: 1;
+            /* Ocupar o espaço restante */
+            max-width: 400px;
+            /* Limitar a largura do GIF */
+        }
+
+        .hero-gif img {
+            width: 100%;
+            /* Tornar o GIF responsivo */
+            border-radius: 15px;
+            /* Arredondar bordas do GIF */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            /* Adicionar sombra */
+        }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #111;
+            /* Fundo preto */
+            background-image:
+                radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: 0 0, 25px 25px;
+            /* Cria um padrão de pontos */
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            z-index: 1;
+        }
+
+        /* Efeito de linhas amarelas suaves */
         .hero::before {
             content: "";
             position: absolute;
@@ -36,266 +88,810 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: -1;
+            background: repeating-linear-gradient(45deg,
+                    rgba(255, 193, 7, 0.05) 0px,
+                    rgba(255, 193, 7, 0.05) 1px,
+                    transparent 2px,
+                    transparent 50px);
+            z-index: 0;
+            pointer-events: none;
+            /* Não bloqueia cliques */
         }
 
         .hero h1 {
-            font-family: Arial, sans-serif;
+            font-size: 5rem;
+            margin: 0;
+            padding: 0;
+            line-height: 1.2;
+            max-width: 900px;
+            text-align: center;
+            color: #fff;
+            opacity: 1;
+            /* Garantir que esteja visível */
+            transform: translateY(0);
+            /* Garantir que a posição esteja correta */
+            z-index: 2;
+            /* Garantir que esteja na frente */
+            background-color: transparent;
+            /* Remover o background temporário */
+        }
+
+        #title {
+            color: #F7d547;
+        }
+
+        .hero h2 {
+            font-size: 1.5rem;
+            margin: 0 0 20px 0;
+            padding: 0;
+            line-height: 1.2;
+            max-width: 900px;
+            text-align: center;
+            color: #fff;
+            /* Cor preta */
+            opacity: 1;
+            /* Garantir que a opacidade esteja ativa */
+            transform: translateY(0);
+            /* Garantir que a posição esteja correta */
+        }
+
+        .hero .btn {
+            padding: 15px 40px;
+            margin-top: 20px;
+            background-color: #FFC107;
+            /* Botão em amarelo */
+            border: none;
+            border-radius: 30px;
+            color: #111;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 1;
+            /* Garantir que a opacidade esteja ativa */
+            transform: translateY(0);
+            /* Garantir que a posição esteja correta */
+            transition: background-color 0.3s ease;
+            z-index: 5;
+            /* Garante que o botão esteja acima de outros elementos */
+            position: relative;
+            /* Mantém a posição relativa ao container hero */
+            pointer-events: auto;
+            /* Garante que o botão receba eventos de clique */
+        }
+
+        .hero .btn:hover {
+            background-color: #e0a800;
+            /* Tom mais escuro de amarelo */
+        }
+
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            /* Garante que as formas não bloqueiem cliques */
+        }
+
+        .shape {
+            position: absolute;
+            background-color: #F7d547;
+            /* Formas em amarelo com opacidade */
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .shape.one {
+            width: 150px;
+            height: 150px;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .shape.two {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -150px;
+        }
+
+
+        /* Seção de Funcionalidades de Aluno e Administrador */
+        .features-section {
+            padding: 80px 20px;
+            background-color: #111;
+            /* Cor sólida preta */
+            color: #fff;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .features-section h2 {
             font-size: 3rem;
-            font-weight: bold;
+            margin-bottom: 30px;
+            color: #fff;
+            position: relative;
+            z-index: 2;
+        }
+
+        .features-section:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100vw;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .features-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: stretch;
+            gap: 20px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-block {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: left;
+            max-width: 350px;
+            flex: 1;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #fff;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-block h3 {
+            font-size: 1.8rem;
+            color: #FFC107;
+            margin-bottom: 15px;
+        }
+
+        .feature-block ul {
+            list-style: none;
+            padding: 0;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
         }
 
-        .hero p {
-            font-family: Arial, sans-serif;
-            font-size: 1.25rem;
-            line-height: 1.5;
-            margin: 0;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        .feature-block ul li {
+            font-size: 1.1rem;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
         }
 
-        .section {
-            padding: 60px 0;
+        .feature-block ul li i {
+            font-size: 1.2rem;
+            color: #FFC107;
+            margin-right: 10px;
+            transition: transform 0.3s ease;
         }
 
-        .section-title {
-            margin-bottom: 40px;
-            font-size: 2rem;
-            font-weight: bold;
+        .feature-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
 
-        .hero-content {
-            max-width: 800px;
-            margin: auto;
+        .feature-block:hover ul li {
+            color: #FFC107;
         }
 
-        /* Adicionar cor de fundo leve às seções */
-        .section {
-            background-color: var(--bg-light);
-            padding: 60px 0;
+        .feature-block:hover ul li i {
+            transform: translateX(5px);
         }
 
-        /* Estilo para as seções de destaque */
-        .bg-light {
-            background-color: #f5f5f5;
-            /* Fundo cinza claro */
-            padding: 40px 0;
+        .feature-icon {
+            font-size: 3rem;
+            color: #FFC107;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
-        /* Atualizar botões */
-        .btn-primary {
-            background-color: #007bff;
+
+        /* Botão de Retorno ao Topo */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #FFC107;
+            color: #111;
             border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
         }
 
-        .btn-secondary {
-            background-color: #6c757d;
-            border: none;
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
-        /* Atualizar links e destaque */
-        a {
-            color: #007bff;
+        .back-to-top:hover {
+            background-color: #e0a800;
         }
 
-        a:hover {
-            color: #0056b3;
+        /* Seção com Cards */
+        .cards-section {
+            padding: 80px 20px;
+            background-color: #fff;
+            /* Fundo branco */
+            text-align: center;
         }
 
-        .highlight {
-            color: #ffcc00;
-            /* Amarelo mais escuro e legível */
-            font-weight: bold;
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
         }
 
-        .section-title span {
-            color: #ffcc00;
-            /* Amarelo mais escuro e legível */
+        .card {
+            width: 300px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            text-align: center;
         }
 
-        .testimonial-item p {
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .card .icon {
+            font-size: 4rem;
+            color: #FFC107;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card p {
             font-size: 1rem;
+            color: #666;
             line-height: 1.5;
-            margin-bottom: 1rem;
         }
 
-        .testimonial-item p.fw-bold {
-            color: #ffcc00;
-            /* Amarelo mais escuro e legível */
+        /* Seção com Texto e Imagem */
+        .content-section {
+            padding: 80px 20px;
+            background-color: #f0f0f0;
+            /* Fundo claro */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            border: none;
+            /* Remove borda */
+            box-shadow: none;
+            /* Remove sombra */
+        }
+
+        .content-text {
+            flex: 1;
+            padding: 20px;
+            max-width: 600px;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .content-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #111;
+        }
+
+        .content-text p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .content-image {
+            flex: 1;
+            max-width: 600px;
+            overflow: hidden;
+            border-radius: 0;
+            /* Remove bordas arredondadas */
+            background-color: transparent;
+            /* Remove fundo */
+            box-shadow: none;
+            /* Remove sombra */
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        .content-image img {
+            width: 100%;
+            height: auto;
+            box-shadow: none;
+            /* Remove sombra da imagem */
+            border: none;
+            /* Remove borda */
+        }
+
+        /* Rodapé */
+        footer {
+            background-color: #222;
+            color: #aaa;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        footer a {
+            color: #FFC107;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #fff;
+        }
+
+        /* Seção de Expansão */
+        .expand-section {
+            padding: 80px 20px;
+            background-color: #f7f7f7;
+            text-align: center;
+        }
+
+        .expand-section h2 {
+            font-size: 2.5rem;
             font-weight: bold;
+            margin-bottom: 20px;
+            color: #222;
+            /* Cor do título */
         }
 
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
+        .expand-item {
+            display: inline-block;
+            width: 200px;
+            height: 200px;
+            margin: 20px;
+            background-color: #FFC107;
+            border-radius: 50%;
+            transition: all 0.5s ease;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            text-align: center;
+            /* Centraliza o conteúdo */
         }
 
-        .btn-secondary {
-            background-color: #6c757d;
+        .expand-item:hover {
+            background-color: #e0a800;
+        }
+
+        .expand-item i {
+            font-size: 3rem;
+            color: #222;
+            /* Cor do ícone */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .expand-item p {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #222;
+            /* Cor do texto */
+            font-size: 1.2rem;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+        }
+
+        .expand-item:hover i {
+            opacity: 0;
+            transform: translate(-50%, 20%);
+        }
+
+        .expand-item:hover p {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%);
+        }
+
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero h2 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+
+            .hero .btn {
+                font-size: 1rem;
+                padding: 12px 30px;
+            }
+
+            .content-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .content-text {
+                transform: translateX(0);
+                text-align: center;
+            }
+
+            .content-image {
+                transform: translateX(0);
+                text-align: center;
+            }
+        }
+
+        /* Botão na Hero Section */
+        .hero .btn-login {
+            padding: 15px 40px;
+            margin-top: 20px;
+            margin-left: 20px;
+            background-color: transparent;
+            border: 2px solid #FFC107;
+            border-radius: 30px;
+            color: #FFC107;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 1;
+            transform: translateY(0);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .hero .btn-login:hover {
+            background-color: #FFC107;
+            color: #111;
+        }
+
+        /* Estilos para a Seção de Acesso */
+        .access-section {
+            padding: 80px 20px;
+            background-color: #333;
+            /* Fundo escuro */
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            margin: 40px 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            /* Animação suave */
+        }
+
+        .access-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            /* Efeito ao passar o mouse */
+        }
+
+        .access-section h2 {
+            font-size: 2.5rem;
+            color: #FFC107;
+            /* Título em amarelo */
+            margin-bottom: 20px;
+        }
+
+        .access-section p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            color: #f5f5f5;
+            /* Texto claro */
+        }
+
+        .access-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-access {
+            padding: 15px 40px;
             border: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .btn-access.login {
+            background-color: #FFC107;
+            /* Fundo amarelo */
+            color: #111;
+            /* Texto escuro */
+        }
+
+        .btn-access.login:hover {
+            background-color: #e0a800;
+            /* Tom mais escuro de amarelo ao passar o mouse */
+        }
+
+        .btn-access.continue {
+            background-color: transparent;
+            border: 2px solid #FFC107;
+            /* Borda amarela */
+            color: #FFC107;
+            /* Texto amarelo */
+        }
+
+        .btn-access.continue:hover {
+            background-color: #FFC107;
+            /* Fundo amarelo */
+            color: #111;
+            /* Texto escuro */
         }
     </style>
 </head>
 
 <body>
-    <!-- Seção Hero -->
-    <header id="home" class="hero">
-        <div>
-            <h1>Bem-vindo ao <span class="highlight">Bookstack!</span></h1>
-            <p>Seu assistente ideal para encontrar e gerenciar todos os livros disponíveis em sua escola!</p>
-            <a href="#contact" class="btn btn-primary mt-3">Fazer Login</a>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 data-aos="fade-up" data-aos-delay="100">Bem-vindo ao <span id="title"
+                        style="color: #FFC107;">BookStack!</span></h1>
+                <h2 data-aos="fade-up" data-aos-delay="200">Seu assistente ideal para encontrar e gerenciar todos os
+                    livros disponíveis em sua escola!</h2>
+                <button class="btn" data-aos="fade-up" data-aos-delay="400"
+                    onclick="scrollToSection('#Cards')">Conheça Mais</button>
+                <button class="btn" data-aos="fade-up" data-aos-delay="500"
+                    onclick="scrollToSection('#Acesso')">Já Possuo Login</button>
+            </div>
         </div>
-    </header>
 
-    <!-- Seção O que é o Bookstack? -->
-    <section id="about" class="section">
-        <div class="container">
-            <h2 class="section-title text-center">O que é o <span class="highlight">Bookstack?</span></h2>
-            <div class="row">
-                <div class="col-md-6 d-flex align-items-center">
-                    <img src="img/logo2.png" alt="O que é o Bookstack" class="img-fluid rounded">
-                </div>
-                <div class="col-md-6">
-                    <p class="lead">O Bookstack é um sistema inovador de gestão de bibliotecas desenvolvido para
-                        facilitar o gerenciamento de livros e usuários com eficiência e praticidade.</p>
-                    <p>Com o Bookstack, você pode:</p>
-                    <ul>
-                        <li><i class="bi bi-book"></i> Catalogar e organizar livros de forma rápida e fácil.</li>
-                        <li><i class="bi bi-person"></i> Gerenciar contas de usuários com informações detalhadas.</li>
-                        <li><i class="bi bi-calendar-check"></i> Realizar e acompanhar empréstimos de forma eficiente.
-                        </li>
-                        <li><i class="bi bi-bar-chart"></i> Gerar relatórios e estatísticas sobre a operação da
-                            biblioteca.</li>
-                        <li><i class="bi bi-bell"></i> Facilitar a comunicação com os usuários através de notificações e
-                            alertas.</li>
-                    </ul>
-                </div>
+        <!-- Formas Flutuantes para Efeito de Fundo -->
+        <div class="floating-shapes">
+            <div class="shape one"></div>
+            <div class="shape two"></div>
+        </div>
+    </section>
+
+
+    <!-- Seção com Cards de Destaque -->
+    <section class="cards-section" id="Cards">
+        <h2 data-aos="fade-up">Por Que Usar o <span class="highlight">BookStack?</span></h2>
+        <div class="cards-container">
+            <div class="card" data-aos="fade-up" data-aos-delay="100">
+                <div class="icon"><i class="fas fa-rocket"></i></div>
+                <h2>Gestão Rápida e Eficiente</h2>
+                <p>Organize e gerencie o acervo de livros da biblioteca com rapidez e eficiência, permitindo uma
+                    administração mais prática e ágil.</p>
+            </div>
+            <div class="card" data-aos="fade-up" data-aos-delay="200">
+                <div class="icon"><i class="fas fa-clock"></i></div>
+                <h2>Melhor otimização do tempo</h2>
+                <p>Com o BookStack, você encontra e gerencia livros com facilidade, economizando tempo valioso para
+                    alunos e administradores.</p>
+            </div>
+            <div class="card" data-aos="fade-up" data-aos-delay="300">
+                <div class="icon"><i class="fas fa-book"></i></div>
+                <h2>Acesso Facilitado ao Catálogo</h2>
+                <p>Ofereça aos usuários uma navegação simples e intuitiva pelo acervo da biblioteca, com ferramentas de
+                    busca e categorização personalizadas.</p>
             </div>
         </div>
     </section>
 
-    <!-- Seção de Serviços -->
-    <section id="services" class="section bg-light">
-        <div class="container">
-            <h2 class="section-title text-center">Nossos <span class="highlight">Objetivos</span></h2>
-            <div class="row text-center">
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title highlight">Visão Geral do Sistema</h5>
-                            <p class="card-text">Com o Bookstack, você tem acesso a um sistema de gestão de biblioteca
-                                inovador que moderniza a administração de livros, usuários e empréstimos. Nossa
-                                plataforma intuitiva facilita a catalogação, o gerenciamento e o controle, oferecendo
-                                funcionalidades avançadas e relatórios detalhados para uma gestão mais eficiente e
-                                organizada.</p>
-                        </div>
-                    </div>
+    <!-- Seção de Funcionalidades de Aluno e Administrador -->
+    <section class="features-section">
+        <h2 data-aos="fade-up">Recursos do <span class="highlight">BookStack</span> para cada usuário</h2>
+        <div class="features-container">
+            <!-- Bloco para Aluno -->
+            <div class="feature-block aluno" data-aos="fade-right">
+                <div class="feature-icon">
+                    <i class="fas fa-user-graduate"></i>
                 </div>
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title highlight">Importância da Automação</h5>
-                            <p class="card-text">A automação do Bookstack é essencial para aumentar a eficiência
-                                operacional das bibliotecas. Eliminando processos manuais e repetitivos, o sistema reduz
-                                erros humanos e libera tempo para atividades mais estratégicas. Relatórios detalhados e
-                                buscas precisas tornam a operação da biblioteca mais ágil e adaptável às necessidades
-                                dos usuários.</p>
-                        </div>
-                    </div>
+                <h3>Para Alunos</h3>
+                <ul>
+                    <li><i class="fas fa-book"></i> Consulta ao Catálogo de Livros</li>
+                    <li><i class="fas fa-search"></i> Busca Avançada por Títulos</li>
+                    <li><i class="fas fa-calendar-check"></i> Reservas de Livros</li>
+                    <li><i class="fas fa-history"></i> Histórico de Reservas</li>
+                </ul>
+            </div>
+            <!-- Bloco para Administrador -->
+            <div class="feature-block admin" data-aos="fade-left">
+                <div class="feature-icon">
+                    <i class="fas fa-user-shield"></i>
                 </div>
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title highlight">Benefícios para os Usuários</h5>
-                            <p class="card-text">O Bookstack melhora a experiência do usuário com uma interface amigável
-                                e funcionalidades como reserva online e notificações automáticas. Acesso facilitado a
-                                informações sobre livros e histórico de empréstimos torna a interação mais conveniente e
-                                personalizada, oferecendo uma experiência de biblioteca superior.</p>
-                        </div>
-                    </div>
-                </div>
+                <h3>Para Administradores</h3>
+                <ul>
+                    <li><i class="fas fa-cogs"></i> Gestão de Usuários</li>
+                    <li><i class="fas fa-sync-alt"></i> Controle de Reservas e Devoluções</li>
+                    <li><i class="fas fa-chart-line"></i> Relatórios de Utilização</li>
+                    <li><i class="fas fa-book"></i> Cadastro e Atualização de Livros</li>
+                </ul>
             </div>
         </div>
     </section>
 
-    <!-- Seção de Depoimentos -->
-    <section id="testimonials" class="section" style="background-color: #000000;">
-        <div class="container">
-            <h2 class="text-center mb-4 text-white">Opiniões dos <span class="highlight">Nossos Alunos</span></h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="testimonial-item text-white">
-                        <p>"Ótimo serviço! Muito satisfeito com o atendimento e a facilidade para encontrar e gerenciar
-                            livros de forma muito prática."</p>
-                        <p class="fw-bold highlight">Rafael de Oliveira, Etec Martinho Di Ciero Itu-SP</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="testimonial-item text-white">
-                        <p>"Excelente qualidade e profissionalismo. O sistema realmente ajudou a organizar nossa
-                            biblioteca de forma eficiente."</p>
-                        <p class="fw-bold highlight">Amanda Soares, Colégio Ceunsp Salto-SP</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="testimonial-item text-white">
-                        <p>"Recomendo a todos! O Bookstack facilitou a gestão dos livros e o acompanhamento dos
-                            empréstimos. Serviço top de linha."</p>
-                        <p class="fw-bold highlight">Pedro Silveira Nunes, Colégio Divino Salvador Itu-SP</p>
-                    </div>
-                </div>
-            </div>
+    <section class="expand-section">
+        <h2>Facilidade e Acessibilidade</h2>
+        <div class="expand-item">
+            <i class="fas fa-users"></i> <!-- Ícone de Usuários -->
+            <p>Usuários Diferentes, Experiência Unificada</p>
+        </div>
+        <div class="expand-item">
+            <i class="fas fa-chart-line"></i> <!-- Ícone de Gráficos -->
+            <p>Relatórios em Tempo Real</p>
+        </div>
+        <div class="expand-item">
+            <i class="fas fa-shield-alt"></i> <!-- Ícone de Segurança -->
+            <p>Segurança de Dados</p>
         </div>
     </section>
 
-    <!-- Seção de Login -->
-    <section id="contact" class="section bg-light">
-        <div class="container mb-3">
-            <h2 class="text-center mb-4">Já possui um <span class="highlight">cadastro?</span></h2>
-            <p class="text-center mb-4">Se você já é um usuário registrado, faça login abaixo. Caso contrário, você pode
-                continuar sem cadastro.</p>
-            <div class="row">
-                <!-- Opção para Login -->
-                <div class="col-md-6 mb-4">
-                    <h3 class="text-center highlight">Faça Login</h3>
-                    <form>
-                        <div class="mb-3">
-                            <label for="login-email" class="form-label">Usuario RM</label>
-                            <input type="email" class="form-control" id="login-email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="login-password" class="form-label">Senha</label>
-                            <input type="password" class="form-control" id="login-password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </form>
-                </div>
-                <!-- Opção para Continuar sem Cadastro -->
-                <div class="col-md-6">
-                    <h3 class="text-center highlight">Continuar sem Cadastro</h3>
-                    <p class="text-center">Você pode continuar navegando e acessando o conteúdo do site sem se
-                        registrar. Caso deseje, poderá se cadastrar mais tarde.</p>
-                    <div class="text-center">
-                        <a href="index.php?p=index" class="btn btn-secondary">Continuar</a>
-                    </div>
-                </div>
-            </div>
+
+    <!-- Nova Seção com Efeitos de Fade -->
+    <section class="content-section">
+        <div class="content-text" data-aos="fade-right">
+            <h2>Sobre o <span style="color: #ffc107;">BookStack</span></h2>
+            <p>O BookStack é uma solução completa para bibliotecas, facilitando a gestão para administradores com
+                controle total do acervo e reservas, enquanto oferece aos alunos uma experiência intuitiva de busca,
+                consulta e reservas de livros. Uma ferramenta que une eficiência e praticidade para transformar a gestão
+                e o acesso à leitura.</p>
+        </div>
+        <div class="content-image" data-aos="fade-left">
+            <img src="img/computador.png" alt="BookStack">
+        </div>
+    </section>
+
+    <section class="access-section" id="Acesso">
+        <h2>Já Possui Conta?</h2>
+        <p>Faça login para acessar suas reservas e gerenciar suas leituras.</p>
+        <div class="access-buttons">
+            <a href="#" class="btn-access login">Fazer Login</a>
+            <a href="index.php?p=home" class="btn-access continue">Continuar sem Cadastro</a>
         </div>
     </section>
 
     <!-- Rodapé -->
-    <footer class="bg-light py-4">
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2024 Bookstack.</p>
-            <a href="#home" class="btn btn-outline-dark mt-3">Voltar ao Topo</a>
-        </div>
+    <footer>
+        <p>© 2024 BookStack. Todos os direitos reservados.</p>
+        <p>
+            <a href="#">Termos de Uso</a> |
+            <a href="#">Política de Privacidade</a> |
+            <a href="#">Contato</a>
+        </p>
     </footer>
 
-    <!-- Scripts do Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+    <!-- Botão de Retorno ao Topo -->
+    <button class="back-to-top" aria-label="Voltar ao topo">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.0/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.0/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.0/ScrollToPlugin.min.js"></script>
+    <script>
+        // Inicializa AOS (Animate On Scroll)
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // Animação inicial da Hero Section com GSAP
+        gsap.from(".hero h1, .hero h2, .hero p, .hero .btn", {
+            duration: 1,
+            y: 30, // Reduzir o movimento vertical
+            opacity: 0,
+            stagger: 0.2,
+            onComplete: function () {
+                // Ajustar z-index e opacidade após animação
+                gsap.set(".hero h1, .hero h2, .hero p, .hero .btn", {
+                    zIndex: 2,
+                    opacity: 1 // Assegurar opacidade total
+                });
+            }
+        });
+
+        // Animação das formas flutuantes
+        gsap.to(".shape.one", {
+            duration: 10,
+            x: 200,
+            y: 200,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+        gsap.to(".shape.two", {
+            duration: 15,
+            x: -300,
+            y: -300,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+        gsap.to(".shape.white", {
+            duration: 15,
+            x: 100,
+            y: 50,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Função para mostrar/ocultar o botão de voltar ao topo
+        window.addEventListener('scroll', () => {
+            const backToTopButton = document.querySelector('.back-to-top');
+            if (window.scrollY > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+
+        // Função para rolar para o topo ao clicar no botão
+        document.querySelector('.back-to-top').addEventListener('click', () => {
+            gsap.to(window, {
+                duration: 1,
+                scrollTo: {
+                    y: 0,
+                    autoKill: true
+                },
+                ease: "power2.inOut"
+            });
+        });
+
+        // Função para rolar suavemente até a seção especificada
+        function scrollToSection(sectionId) {
+            gsap.to(window, {
+                duration: 1,
+                scrollTo: {
+                    y: sectionId,
+                    offsetY: 0 // Remove qualquer offset para rolar até o topo da seção
+                },
+                ease: "power2.inOut"
+            });
+        }
+
+    </script>
 </body>
 
 </html>

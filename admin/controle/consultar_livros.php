@@ -55,6 +55,18 @@ $livros = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .table td a {
             margin: 0 5px;
         }
+
+        /* Espaçamento entre botões dentro de btn-group */
+        .btn-group .btn {
+            margin-right: 5px;
+            /* Espaçamento entre os botões */
+        }
+
+        /* Remover margem do último botão */
+        .btn-group .btn:last-child {
+            margin-right: 0;
+            /* Remove margem do último botão */
+        }
     </style>
 </head>
 
@@ -73,16 +85,26 @@ $livros = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <label for="searchCategoria" class="form-label">Buscar por Categoria</label>
                 <select class="form-select" id="searchCategoria" name="categoria">
                     <option value="">Todas as categorias</option>
-                    <option value="Romance" <?php if ($categoria == 'Romance') echo 'selected'; ?>>Romance</option>
-                    <option value="Drama" <?php if ($categoria == 'Drama') echo 'selected'; ?>>Drama</option>
-                    <option value="Novela" <?php if ($categoria == 'Novela') echo 'selected'; ?>>Novela</option>
-                    <option value="Conto" <?php if ($categoria == 'Conto') echo 'selected'; ?>>Conto</option>
-                    <option value="Crônica" <?php if ($categoria == 'Crônica') echo 'selected'; ?>>Crônica</option>
-                    <option value="Poesia" <?php if ($categoria == 'Poesia') echo 'selected'; ?>>Poesia</option>
-                    <option value="Ficção" <?php if ($categoria == 'Ficção') echo 'selected'; ?>>Ficção</option>
-                    <option value="Aventura" <?php if ($categoria == 'Aventura') echo 'selected'; ?>>Aventura</option>
-                    <option value="HQ" <?php if ($categoria == 'HQ') echo 'selected'; ?>>HQ</option>
-                    <option value="Terror" <?php if ($categoria == 'Terror') echo 'selected'; ?>>Terror</option>
+                    <option value="Romance" <?php if ($categoria == 'Romance')
+                        echo 'selected'; ?>>Romance</option>
+                    <option value="Drama" <?php if ($categoria == 'Drama')
+                        echo 'selected'; ?>>Drama</option>
+                    <option value="Novela" <?php if ($categoria == 'Novela')
+                        echo 'selected'; ?>>Novela</option>
+                    <option value="Conto" <?php if ($categoria == 'Conto')
+                        echo 'selected'; ?>>Conto</option>
+                    <option value="Crônica" <?php if ($categoria == 'Crônica')
+                        echo 'selected'; ?>>Crônica</option>
+                    <option value="Poesia" <?php if ($categoria == 'Poesia')
+                        echo 'selected'; ?>>Poesia</option>
+                    <option value="Ficção" <?php if ($categoria == 'Ficção')
+                        echo 'selected'; ?>>Ficção</option>
+                    <option value="Aventura" <?php if ($categoria == 'Aventura')
+                        echo 'selected'; ?>>Aventura</option>
+                    <option value="HQ" <?php if ($categoria == 'HQ')
+                        echo 'selected'; ?>>HQ</option>
+                    <option value="Terror" <?php if ($categoria == 'Terror')
+                        echo 'selected'; ?>>Terror</option>
                 </select>
             </div>
         </form>
@@ -117,11 +139,13 @@ $livros = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td><?php echo htmlspecialchars($livro['condicao']); ?></td>
                             <td><?php echo htmlspecialchars($livro['isbn']); ?></td>
                             <td>
-                                <a href="admin_dashboard.php?p=editar_livro&id=<?php echo htmlspecialchars($livro['id']); ?>"
-                                    class="btn btn-warning btn-sm">Editar</a>
-                                <a href="excluir_livros.php?id=<?php echo htmlspecialchars($livro['id']); ?>"
-                                    class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Tem certeza que deseja excluir este livro?')">Excluir</a>
+                                <div class="btn-group" role="group" aria-label="Ações">
+                                    <a href="admin_dashboard.php?p=editar_livro&id=<?php echo htmlspecialchars($livro['id']); ?>"
+                                        class="btn btn-warning btn-sm">Editar</a>
+                                    <a href="excluir_livros.php?id=<?php echo htmlspecialchars($livro['id']); ?>"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Tem certeza que deseja excluir este livro?')">Excluir</a>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

@@ -14,6 +14,11 @@ if (isset($_SESSION['skipped_presentation'])) {
 }
 
 $pagina = isset($_GET['p']) ? $_GET['p'] : 'index'; // Default para página inicial
+
+if ($pagina == 'admin') {
+    header("Location: controle/admin_dashboard.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -28,7 +33,12 @@ $pagina = isset($_GET['p']) ? $_GET['p'] : 'index'; // Default para página inic
 </head>
 
 <body>
-    <?php include_once './navbar_home.php'; ?>
+    <?php
+    // Exibe a navbar somente se a página atual não for a apresentação
+    if ($pagina !== 'presentation') {
+        include_once './navbar_home.php';
+    }
+    ?>
     <div>
         <div class="col-md-12 col-sm-12">
             <?php

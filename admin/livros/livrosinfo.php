@@ -1,9 +1,14 @@
 <?php
 // Inclui o arquivo de conexão com o banco de dados
+session_start();
 include('../includes/db_connect.php');
 
-// Defina o caminho base correto onde suas imagens estão armazenadas
-$baseUploadPath = 'http://localhost/bookstack2/admin/controle/'; // Ajuste conforme o caminho correto no seu sistema
+// Verifica se o usuário está logado
+if (!isset($_SESSION['aluno_id'])) {
+    die('Faça login para reservar o livro.');
+}
+
+$baseUploadPath = 'http://localhost/bookstack/admin/controle/'; // Ajuste conforme o caminho correto no seu sistema
 
 // Obtém a instância da conexão
 $conn = Conectar::getInstance();
@@ -38,6 +43,8 @@ if (isset($_GET['id'])) {
     <title><?php echo htmlspecialchars($livro['titulo']); ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .livro-capa {
             max-height: 300px; /* Altura máxima */
@@ -73,7 +80,7 @@ if (isset($_GET['id'])) {
             <td><?php echo htmlspecialchars($livro['ano']); ?></td>
           </tr>
           <tr>
-            <th scope="row">N° de páginas</th>
+            <th scope="row">Exemplares Disponíveis</th>
             <td><?php echo htmlspecialchars($livro['exemplares']); ?></td>
           </tr>
           <tr>
@@ -95,13 +102,85 @@ if (isset($_GET['id'])) {
           alt="Imagem não disponível">
         <?php endif; ?>
         <div class="card-body text-center">
-          <a href="controle/reserva.php?id=<?php echo htmlspecialchars($livro['id']); ?>" class="btn btn-outline-warning btn-lg" style="border-radius: 50px;">Reservar</a>
+          <button onclick="reservarLivro(<?php echo htmlspecialchars($livro['id']); ?>)" class="btn btn-outline-warning btn-lg" style="border-radius: 50px;">Reservar</button>
         </div>
       </div>
     </div>
 
   </div>
 </div>
+
+<script>
+    function reservarLivro(livro_id) {
+        Swal.fire({
+            title: 'Confirmação de Reserva',
+            text: "Tem certeza que deseja reservar este livro?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, reservar!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Faz a requisição Ajax para reservar o livro
+                $.ajax({
+                    url: '../controle/reservar.php', // URL para o arquivo PHP de reserva
+                    type: 'POST',
+                    data: { livro_id: livro_id }, // Envia o ID do livro
+                    success: function (response) {
+                        // Verifica a resposta do servidor
+                        if (response === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Reservado com sucesso!',
+                                text: 'O livro foi reservado com sucesso.',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+
+                            // Atualizar a página ou o botão de reserva após o sucesso
+                            setTimeout(function () {
+                                location.reload(); // Atualiza a página após a reserva
+                            }, 2000);
+                        } else if (response === 'already_reserved') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Já Reservado!',
+                                text: 'Você já reservou este livro.',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        } else if (response === 'not_logged_in') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Você precisa estar logado para reservar o livro.',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Houve um erro ao reservar o livro. Tente novamente.',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro',
+                            text: 'Houve um erro ao reservar o livro. Tente novamente.',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
+                });
+            }
+        });
+    }
+</script>
 
 </body>
 </html>

@@ -4,14 +4,33 @@ include('includes/db_connect.php');
 // Cria uma instância da classe Conectar
 $conn = Conectar::getInstance();
 
-// Consulta para obter os livros cadastrados
-$query = "SELECT * FROM livros";
-$stmt = $conn->query($query);
-$livros = $stmt->fetchAll(PDO::FETCH_ASSOC);
-// Define o caminho base para os uploads
-$baseUploadPath = 'http://localhost/bookstack2/admin/controle/';
+// Definir o número de livros por página
+$livrosPorPagina = 12; // Defina o número de livros a serem exibidos por página
+$paginaAtual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1; // Página atual, padrão é 1
 
+// Calcular o offset
+$offset = ($paginaAtual - 1) * $livrosPorPagina;
+
+// Consulta para obter o total de livros
+$queryTotal = "SELECT COUNT(*) as total FROM livros";
+$stmtTotal = $conn->query($queryTotal);
+$totalLivros = $stmtTotal->fetch(PDO::FETCH_ASSOC)['total'];
+
+// Calcular o número total de páginas
+$totalPaginas = ceil($totalLivros / $livrosPorPagina);
+
+// Consulta para obter os livros da página atual
+$query = "SELECT * FROM livros LIMIT :limit OFFSET :offset";
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':limit', $livrosPorPagina, PDO::PARAM_INT);
+$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
+$livros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Define o caminho base para os uploads
+$baseUploadPath = 'http://localhost/bookstack/admin/controle/';
 ?>
+
 <link rel="stylesheet" href="css/paginationcss.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -55,6 +74,120 @@ $baseUploadPath = 'http://localhost/bookstack2/admin/controle/';
             /* Largura total do container */
             object-fit: cover;
             /* Ajusta a imagem para cobrir o elemento, mantendo a proporção */
+        }
+
+        .pagination-modern {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .pagination-modern ul {
+            display: flex;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .pagination-modern ul li {
+            margin: 0 5px;
+        }
+
+        .pagination-modern ul li a,
+        .pagination-modern .prev-modern,
+        .pagination-modern .next-modern {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 40px;
+            /* Aumenta a largura mínima dos botões */
+            height: 40px;
+            /* Aumenta a altura dos botões */
+            border-radius: 50%;
+            /* Torna os botões circulares */
+            background-color: #f8f9fa;
+            /* Cor de fundo padrão */
+            color: #333;
+            /* Cor do texto */
+            border: 1px solid #ddd;
+            /* Borda padrão */
+            text-decoration: none;
+            /* Remove a sublinhado dos links */
+            font-size: 16px;
+            /* Aumenta o tamanho da fonte */
+            font-weight: 600;
+            /* Deixa o texto em negrito */
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            /* Adiciona transição suave */
+        }
+
+        .pagination-modern ul li a:hover,
+        .pagination-modern .prev-modern:hover,
+        .pagination-modern .next-modern:hover {
+            background-color: #f7d547;
+            /* Cor de fundo ao passar o mouse */
+            color: #fff;
+            /* Cor do texto ao passar o mouse */
+            transform: scale(1.1);
+            /* Leve aumento ao passar o mouse */
+        }
+
+        .pagination-modern ul li.active-modern a {
+            background-color: #f7d547;
+            /* Cor de fundo para a página ativa */
+            color: #fff;
+            /* Cor do texto para a página ativa */
+            border-color: #f7d547;
+            /* Borda para a página ativa */
+            font-size: 18px;
+            /* Aumenta o tamanho da fonte para destacar */
+            transform: scale(1.2);
+            /* Aumenta o botão ativo */
+        }
+
+        .pagination-modern .prev-modern,
+        .pagination-modern .next-modern {
+            border-radius: 20px;
+            /* Borda arredondada para os botões de navegação */
+            padding: 0 15px;
+            /* Espaçamento horizontal */
+            font-size: 16px;
+            /* Tamanho da fonte */
+            font-weight: bold;
+            /* Negrito */
+        }
+
+        .pagination-modern .prev-modern {
+            margin-right: 10px;
+            /* Espaçamento à direita */
+        }
+
+        .pagination-modern .next-modern {
+            margin-left: 10px;
+            /* Espaçamento à esquerda */
+        }
+
+        /* Oculta o texto dos links de navegação em telas menores */
+        @media (max-width: 576px) {
+
+            .pagination-modern .prev-modern,
+            .pagination-modern .next-modern {
+                font-size: 0;
+                /* Esconde o texto */
+                min-width: 30px;
+                /* Mantém a largura mínima */
+                height: 30px;
+                /* Ajusta a altura */
+                border-radius: 50%;
+                /* Torna os botões circulares */
+            }
+
+            .pagination-modern .prev-modern::after,
+            .pagination-modern .next-modern::after {
+                content: '';
+                /* Remove o conteúdo de texto */
+            }
         }
     </style>
 
@@ -329,6 +462,30 @@ $baseUploadPath = 'http://localhost/bookstack2/admin/controle/';
                 </div>
             <?php endforeach; ?>
         </div>
+        <div class="pagination-modern mt-4 d-flex justify-content-center">
+            <ul>
+                <?php if ($paginaAtual > 1): ?>
+                    <li>
+                        <a href="?pagina=<?php echo $paginaAtual - 1; ?>" class="prev-modern"> <i class="fa fa-angle-left"
+                                aria-hidden="true"></i> Anterior</a>
+                    </li>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                    <li class="<?php echo ($i == $paginaAtual) ? 'active-modern' : ''; ?>">
+                        <a href="?pagina=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <?php if ($paginaAtual < $totalPaginas): ?>
+                    <li>
+                        <a href="?pagina=<?php echo $paginaAtual + 1; ?>" class="next-modern">Próximo <i
+                                class="fa fa-angle-right" aria-hidden="true"></i></a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
+
     </div>
 
     <style>

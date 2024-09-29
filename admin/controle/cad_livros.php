@@ -1,5 +1,6 @@
 <?php
 include_once '../includes/db_connect.php';
+@session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $titulo = $_POST['titulo'];
@@ -12,7 +13,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $categoria = $_POST['categoria'];
     $exemplares = $_POST['exemplares'];
     $condicao = $_POST['condicao'];
-
 
     // Verifica se um arquivo foi enviado
     if (!empty($_FILES['capa']['name'])) {
@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['message_type'] = "danger";
     }
 
-    header("Location: admin_dashboard.php?p=cad_livros");
+    header("Location: cad_livros.php");
     exit();
 }
 ?>
@@ -46,12 +46,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <title>Cadastro de Livros</title>
 </head>
 
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Cadastro de Livros</h1>
+
+        <!-- Formulário de Cadastro -->
         <form action="cad_livros.php" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
             <div class="form-row">
                 <div class="col-md-6 mb-3">
@@ -137,7 +140,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button class="btn btn-primary" type="submit">Cadastrar Livro</button>
         </form>
     </div>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="../js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script de Validação -->
     <script>
         (function () {
             'use strict';
@@ -154,7 +162,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 });
             }, false);
         })();
+        
+        // Alerta de Cadastro com SweetAlert2
+        <?php if (isset($_SESSION['message'])): ?>
+            Swal.fire({
+                title: '<?php echo $_SESSION['message_type'] == "success" ? "Sucesso!" : "Erro!"; ?>',
+                text: '<?php echo $_SESSION['message']; ?>',
+                icon: '<?php echo $_SESSION['message_type']; ?>',
+                confirmButtonText: 'OK',
+                timer: 3000,
+                timerProgressBar: true
+            }).then(() => {
+                <?php unset($_SESSION['message']); unset($_SESSION['message_type']); ?> // Limpar sessão após exibição
+                window.location.href = 'admin_dashboard.php?p=cad_livros'; // Redirecionar após alerta
+            });
+        <?php endif; ?>
     </script>
 </body>
-
 </html>
