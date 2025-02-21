@@ -4,7 +4,7 @@ include_once '../includes/db_connect.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $titulo = $_POST['titulo'];
-    $subtitulo = $_POST['subtitulo'];
+    $subtitulo = !empty($_POST['subtitulo']) ? $_POST['subtitulo'] : null;
     $sinopse = $_POST['sinopse'];
     $autor = $_POST['autor'];
     $instituicao = $_POST['instituicao'];
@@ -14,7 +14,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $exemplares = $_POST['exemplares'];
     $condicao = $_POST['condicao'];
 
-    // Verifica se um arquivo foi enviado
     if (!empty($_FILES['capa']['name'])) {
         $target_dir = "uploads/";
         $target_file = $target_dir . basename($_FILES["capa"]["name"]);
@@ -35,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['message_type'] = "danger";
     }
 
-    header("Location: cad_livros.php");
+    header("Location: admin_dashboard.php?p=cad_livros");
     exit();
 }
 ?>
@@ -64,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="subtitulo" class="form-label">Subtítulo</label>
-                    <input type="text" class="form-control" id="subtitulo" name="subtitulo" required>
+                    <input type="text" class="form-control" id="subtitulo" name="subtitulo">
                     <div class="invalid-feedback">Por favor, insira o subtítulo.</div>
                 </div>
             </div>
@@ -144,7 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="../js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Script de Validação -->
     <script>
         (function () {
@@ -162,7 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 });
             }, false);
         })();
-        
+
         // Alerta de Cadastro com SweetAlert2
         <?php if (isset($_SESSION['message'])): ?>
             Swal.fire({
@@ -173,10 +172,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 timer: 3000,
                 timerProgressBar: true
             }).then(() => {
-                <?php unset($_SESSION['message']); unset($_SESSION['message_type']); ?> // Limpar sessão após exibição
+                <?php unset($_SESSION['message']);
+                unset($_SESSION['message_type']); ?> // Limpar sessão após exibição
                 window.location.href = 'admin_dashboard.php?p=cad_livros'; // Redirecionar após alerta
             });
         <?php endif; ?>
     </script>
 </body>
+
 </html>

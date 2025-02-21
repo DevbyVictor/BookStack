@@ -1,9 +1,11 @@
 <?php
 session_start();  // Iniciar a sessão
 
+header('Content-Type: application/json');
+
 // Verificar se o aluno está logado
 if (!isset($_SESSION['aluno_id'])) {
-    echo "Você precisa estar logado para cancelar a reserva.";
+    echo json_encode(['status' => 'not_logged_in']);
     exit;
 }
 
@@ -17,7 +19,7 @@ $conn = Conectar::getInstance();
 $query = "SELECT * FROM reservas WHERE id = ? AND aluno_id = ? AND status = 'reservado'";
 $stmt = $conn->prepare($query);
 $stmt->execute([$reserva_id, $aluno_id]);
-$reserva = $stmt->fetch(PDO::FETCH_ASSOC);  // Usar fetch() para obter uma linha
+$reserva = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($reserva) {
     // Atualizar o status da reserva para 'cancelado' e registrar a data de cancelamento
@@ -25,13 +27,29 @@ if ($reserva) {
     $stmt = $conn->prepare($query);
     $stmt->execute([$reserva_id]);
 
-    // Armazenar a mensagem de sucesso na sessão
-    $_SESSION['mensagem_sucesso'] = "Reserva cancelada com sucesso!";
-} else {
-    $_SESSION['mensagem_erro'] = "Não foi possível cancelar a reserva.";
-}
+    // Verificar quantas vezes o aluno já cancelou a reserva do mesmo livro em menos de 15 minutos
+    $livro_id = $reserva['livro_id'];
+    $query = "SELECT COUNT(*) as cancelamentos_recentes FROM reservas WHERE aluno_id = ? AND livro_id = ? AND status = 'cancelado' AND TIMESTAMPDIFF(MINUTE, data_cancelamento, NOW()) <= 15";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([$aluno_id, $livro_id]);
+    $cancelamentos_recentes = $stmt->fetch(PDO::FETCH_ASSOC)['cancelamentos_recentes'];
 
-// Redirecionar de volta para a página de histórico
-header("Location: ../livros/historico_reservas.php?p=historico");
-exit();
+    // Se for o 3º cancelamento em 15 minutos, aplicar a punição
+    if ($cancelamentos_recentes >= 3) {
+        // Aplicar a punição por 5 horas
+        $_SESSION['punição'] = time() + (5 * 60 * 60); // Punição de 5 horas
+        echo json_encode(['status' => 'punido', 'horas_punicao' => 5]);
+        exit;
+    } elseif ($cancelamentos_recentes == 2) {
+        // Notificar o usuário que, se cancelar mais uma vez, será punido
+        echo json_encode(['status' => 'notificacao', 'mensagem' => 'Se cancelar mais uma vez em até 15 minutos, você será punido com um tempo de espera de 5 horas.']);
+        exit;
+    } else {
+        echo json_encode(['status' => 'success', 'message' => 'Reserva cancelada com sucesso.']);
+        exit;
+    }
+} else {
+    echo json_encode(['status' => 'error', 'message' => 'Não foi possível cancelar a reserva.']);
+    exit;
+}
 ?>

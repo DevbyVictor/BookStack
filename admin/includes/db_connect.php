@@ -1,6 +1,7 @@
 <?php
 ob_start(); // Inicia o buffer de saída
-class Conectar extends PDO {
+class Conectar extends PDO
+{
     private static $instancia;
     private $host = "localhost";
     private $usuario = "root";
@@ -8,14 +9,16 @@ class Conectar extends PDO {
     private $db = "bookstack";
 
     // Construtor
-    public function __construct() {
+    public function __construct()
+    {
         $dsn = "mysql:host=$this->host;dbname=$this->db;charset=utf8"; // Adicionado charset=utf8
         parent::__construct($dsn, $this->usuario, $this->senha);
         $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Adicionado para lançar exceções em caso de erro
     }
 
     // Método estático para obter a instância única da conexão PDO
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (!isset(self::$instancia)) {
             try {
                 self::$instancia = new Conectar();
@@ -28,7 +31,8 @@ class Conectar extends PDO {
     }
 
     // Método para executar consultas SQL
-    public function sql($query, $params = []) {
+    public function sql($query, $params = [])
+    {
         $stmt = $this->prepare($query);
         foreach ($params as $key => &$val) {
             $stmt->bindParam($key, $val);

@@ -1,21 +1,31 @@
 <?php
-session_start();  // Iniciar a sessão
+session_start();
+header('Content-Type: application/json');
 
 // Verificar se o aluno está logado
 if (!isset($_SESSION['aluno_id'])) {
-    echo "Você precisa estar logado para reservar um livro.";
+    echo json_encode(['status' => 'not_logged_in']);
     exit;
 }
 
-$aluno_id = $_SESSION['aluno_id'];  // Pega o ID do aluno da sessão
+$aluno_id = $_SESSION['aluno_id'];  // ID do aluno da sessão
 
-// Verificar se o livro_id foi passado via POST ou GET
+// Verificar se o aluno está punido
+if (isset($_SESSION['punição']) && time() < $_SESSION['punição']) {
+    $horas_restantes = ceil(($_SESSION['punição'] - time()) / 3600);
+
+    echo json_encode([
+        'status' => 'punido',
+        'horas_punicao' => (int) $horas_restantes // Converter para inteiro
+    ]);
+    exit;
+}
+
+// Verificar se o livro_id foi passado via POST
 if (isset($_POST['livro_id'])) {
     $livro_id = $_POST['livro_id'];
-} elseif (isset($_GET['livro_id'])) {
-    $livro_id = $_GET['livro_id'];
 } else {
-    echo "Livro não especificado.";
+    echo json_encode(['status' => 'error', 'message' => 'Livro não especificado']);
     exit;
 }
 
@@ -28,23 +38,26 @@ $livro = $livroObj->getLivro($livro_id);
 
 // Verificar se o livro existe
 if (!$livro) {
-    echo "O livro não foi encontrado.";
+    echo json_encode(['status' => 'error', 'message' => 'Livro não encontrado']);
     exit;
 }
 
 try {
     $conn = Conectar::getInstance();
 
+    // Iniciar transação para garantir consistência
+    $conn->beginTransaction();
+
     // Verificar o número de reservas ativas para este livro
-    $query = "SELECT COUNT(*) as reservas_ativas FROM reservas WHERE livro_id = ? AND status = 'reservado'";
+    $query = "SELECT exemplares_disponiveis FROM livros WHERE id = ?";
     $stmt = $conn->prepare($query);
     $stmt->execute([$livro_id]);
-    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);  // Usar fetch() para obter uma linha
-    $reservas_ativas = $resultado['reservas_ativas'];
+    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Verificar se ainda há exemplares disponíveis para reserva
-    if ($reservas_ativas >= $livro['exemplares']) {
-        echo "Exemplares máximos atingidos.";
+    if (!$resultado || $resultado['exemplares_disponiveis'] <= 0) {
+        echo json_encode(['status' => 'max_exemplares']);
+        $conn->rollBack(); // Reverter alterações caso algo dê errado
         exit;
     }
 
@@ -52,49 +65,45 @@ try {
     $query = "SELECT * FROM reservas WHERE livro_id = ? AND aluno_id = ? AND status = 'reservado'";
     $stmt = $conn->prepare($query);
     $stmt->execute([$livro_id, $aluno_id]);
-    $reserva_existente = $stmt->fetch(PDO::FETCH_ASSOC);  // Usar fetch() para obter uma linha
+    $reserva_existente = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($reserva_existente) {
-        echo "Você já reservou este livro.";
+        echo json_encode(['status' => 'already_reserved']);
+        $conn->rollBack(); // Reverter alterações caso algo dê errado
         exit;
     }
 
-    // Verificar se o aluno cancelou a reserva recentemente
-    $query = "SELECT * FROM reservas WHERE livro_id = ? AND aluno_id = ? AND status = 'cancelado' ORDER BY data_cancelamento DESC LIMIT 1";
+    // Verificar se o aluno já possui uma reserva ou retirada ativa para o mesmo livro
+    $query = "SELECT * FROM reservas WHERE livro_id = ? AND aluno_id = ? AND status IN ('reservado', 'retirado')";
     $stmt = $conn->prepare($query);
     $stmt->execute([$livro_id, $aluno_id]);
-    $reserva_cancelada = $stmt->fetch(PDO::FETCH_ASSOC);  // Usar fetch() para obter uma linha
+    $reserva_existente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($reserva_cancelada) {
-        // Verificar se já passaram 12 horas desde o cancelamento
-        $data_cancelamento = new DateTime($reserva_cancelada['data_cancelamento']);
-        $agora = new DateTime();
-        
-        // Calcular a diferença em segundos
-        $intervalo_segundos = $agora->getTimestamp() - $data_cancelamento->getTimestamp();
-        
-        // Converter para horas
-        $horas_passadas = $intervalo_segundos / 3600;
-
-        // Se o intervalo for menor que 12 horas, impedir nova reserva
-        if ($horas_passadas < 12) {
-            $horas_restantes = 12 - $horas_passadas;
-            echo "Você deve esperar " . ceil($horas_restantes) . " horas para reservar este livro novamente.";
-            exit;
-        }
+    if ($reserva_existente) {
+        echo json_encode(['status' => 'already_reserved_or_retirado']);
+        $conn->rollBack(); // Reverter alterações caso algo dê errado
+        exit;
     }
 
     // Inserir a nova reserva
     $data_reserva = date('Y-m-d H:i:s');
     $data_devolucao = date('Y-m-d', strtotime('+7 days'));
 
-    $query = "INSERT INTO reservas (livro_id, aluno_id, data_reserva, data_devolucao, status) 
-              VALUES (?, ?, ?, ?, 'reservado')";
+    $query = "INSERT INTO reservas (livro_id, aluno_id, data_reserva, data_devolucao, status) VALUES (?, ?, ?, ?, 'reservado')";
     $stmt = $conn->prepare($query);
     $stmt->execute([$livro_id, $aluno_id, $data_reserva, $data_devolucao]);
 
-    echo "Reserva efetuada com sucesso!";
+    // Atualizar exemplares disponíveis
+    $query = "UPDATE livros SET exemplares_disponiveis = exemplares_disponiveis - 1 WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->execute([$livro_id]);
+
+    // Confirmar a transação
+    $conn->commit();
+
+    echo json_encode(['status' => 'success']);
 } catch (PDOException $e) {
-    echo "Erro ao efetuar a reserva: " . $e->getMessage();
+    $conn->rollBack(); // Reverter alterações em caso de erro
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
 ?>

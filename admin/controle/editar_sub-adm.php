@@ -51,12 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Sub-Administrador</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
     <div class="container mt-4">
         <h1 class="mb-4">Editar Sub-Administrador</h1>
@@ -84,15 +86,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="foto">Foto ADM</label>
                 <input type="file" class="form-control-file" id="foto" name="foto">
                 <?php if (!empty($sub_adm['foto'])): ?>
-                <img src="<?php echo htmlspecialchars($sub_adm['foto']); ?>" alt="Foto do adm"
-                    class="img-fluid img-thumbnail" style="max-height: 200px; width: auto;">
+                    <img src="<?php echo htmlspecialchars($sub_adm['foto']); ?>" alt="Foto do adm"
+                        class="img-fluid img-thumbnail" style="max-height: 200px; width: auto;">
                 <?php endif; ?>
             </div>
-            <button type="submit" class="btn btn-primary">Atualizar</button>
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-primary">Atualizar</button>
+                <a href="admin_dashboard.php?p=consultar_sub-adm" class="btn btn-secondary mx-2">Cancelar</a>
+            </div>
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.3/js/bootstrap.min.js"></script>
 </body>
+
 </html>

@@ -665,6 +665,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #111;
             /* Texto escuro */
         }
+        .info-continuar {
+    font-size: 12px;
+    color: #555;
+    display: block;
+    margin-top: 5px;
+    text-align: center;
+}
     </style>
 </head>
 
@@ -677,9 +684,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2 data-aos="fade-up" data-aos-delay="200">Seu assistente ideal para encontrar e gerenciar todos os
                     livros disponíveis em sua escola!</h2>
                 <button class="btn" data-aos="fade-up" data-aos-delay="400"
-                    onclick="scrollToSection('#Cards')">Conheça Mais</button>
+                    onclick="scrollToSection('#Cards')">Conheça mais</button>
                 <button class="btn" data-aos="fade-up" data-aos-delay="500"
-                    onclick="scrollToSection('#Acesso')">Já Possuo Login</button>
+                    onclick="scrollToSection('#Acesso')">Já possuo login</button>
             </div>
         </div>
 
@@ -693,11 +700,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Seção com Cards de Destaque -->
     <section class="cards-section" id="Cards">
-        <h2 data-aos="fade-up">Por Que Usar o <span class="highlight">BookStack?</span></h2>
+        <h2 data-aos="fade-up">Por que usar o <span class="highlight">BookStack?</span></h2>
         <div class="cards-container">
             <div class="card" data-aos="fade-up" data-aos-delay="100">
                 <div class="icon"><i class="fas fa-rocket"></i></div>
-                <h2>Gestão Rápida e Eficiente</h2>
+                <h2>Gestão rápida e eficiente</h2>
                 <p>Organize e gerencie o acervo de livros da biblioteca com rapidez e eficiência, permitindo uma
                     administração mais prática e ágil.</p>
             </div>
@@ -709,7 +716,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="card" data-aos="fade-up" data-aos-delay="300">
                 <div class="icon"><i class="fas fa-book"></i></div>
-                <h2>Acesso Facilitado ao Catálogo</h2>
+                <h2>Acesso facilitado ao catálogo</h2>
                 <p>Ofereça aos usuários uma navegação simples e intuitiva pelo acervo da biblioteca, com ferramentas de
                     busca e categorização personalizadas.</p>
             </div>
@@ -725,12 +732,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="feature-icon">
                     <i class="fas fa-user-graduate"></i>
                 </div>
-                <h3>Para Alunos</h3>
+                <h3>Para alunos</h3>
                 <ul>
-                    <li><i class="fas fa-book"></i> Consulta ao Catálogo de Livros</li>
-                    <li><i class="fas fa-search"></i> Busca Avançada por Títulos</li>
-                    <li><i class="fas fa-calendar-check"></i> Reservas de Livros</li>
-                    <li><i class="fas fa-history"></i> Histórico de Reservas</li>
+                    <li><i class="fas fa-book"></i> Consulta ao catálogo de livros</li>
+                    <li><i class="fas fa-search"></i>Busca avançada por títulos</li>
+                    <li><i class="fas fa-calendar-check"></i>Reservas de livros</li>
+                    <li><i class="fas fa-history"></i>Histórico de reservas</li>
                 </ul>
             </div>
             <!-- Bloco para Administrador -->
@@ -738,12 +745,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="feature-icon">
                     <i class="fas fa-user-shield"></i>
                 </div>
-                <h3>Para Administradores</h3>
+                <h3>Para administradores</h3>
                 <ul>
-                    <li><i class="fas fa-cogs"></i> Gestão de Usuários</li>
-                    <li><i class="fas fa-sync-alt"></i> Controle de Reservas e Devoluções</li>
-                    <li><i class="fas fa-chart-line"></i> Relatórios de Utilização</li>
-                    <li><i class="fas fa-book"></i> Cadastro e Atualização de Livros</li>
+                    <li><i class="fas fa-cogs"></i>Gestão de usuários</li>
+                    <li><i class="fas fa-sync-alt"></i>Controle de reservas e devoluções</li>
+                    <li><i class="fas fa-chart-line"></i>Relatórios de utilização</li>
+                    <li><i class="fas fa-book"></i>Cadastro e atualização de livros</li>
                 </ul>
             </div>
         </div>
@@ -753,15 +760,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h2>Facilidade e Acessibilidade</h2>
         <div class="expand-item">
             <i class="fas fa-users"></i> <!-- Ícone de Usuários -->
-            <p>Usuários Diferentes, Experiência Unificada</p>
+            <p>Usuários diferentes, experiência unificada</p>
         </div>
         <div class="expand-item">
             <i class="fas fa-chart-line"></i> <!-- Ícone de Gráficos -->
-            <p>Relatórios em Tempo Real</p>
+            <p>Relatórios em tempo real</p>
         </div>
         <div class="expand-item">
             <i class="fas fa-shield-alt"></i> <!-- Ícone de Segurança -->
-            <p>Segurança de Dados</p>
+            <p>Segurança de dados</p>
         </div>
     </section>
 
@@ -776,18 +783,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 e o acesso à leitura.</p>
         </div>
         <div class="content-image" data-aos="fade-left">
-            <img src="img/computador.png" alt="BookStack">
+            <img src="img/notebbok.png" alt="BookStack">
         </div>
     </section>
 
     <section class="access-section" id="Acesso">
-        <h2>Já Possui Conta?</h2>
-        <p>Faça login para acessar suas reservas e gerenciar suas leituras.</p>
-        <div class="access-buttons">
-            <a href="#" class="btn-access login">Fazer Login</a>
-            <a href="index.php?p=home" class="btn-access continue">Continuar sem Cadastro</a>
-        </div>
-    </section>
+    <h2>Já possui conta?</h2>
+    <p>Faça login para acessar suas reservas e gerenciar suas leituras.</p>
+    <div class="access-buttons">
+        <a href="index.php?p=login" class="btn-access login">Fazer login<br><span class="info-continuar">Entre e acesse suas reservas!</span></a>
+        <a href="index.php?p=home" class="btn-access continue">
+            Continuar sem cadastro<br><span class="info-continuar">Você pode ver nossa coleção de livros!</span>
+        </a>
+    </div>
+</section>
 
     <!-- Rodapé -->
     <footer>

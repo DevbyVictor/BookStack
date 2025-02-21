@@ -1,15 +1,22 @@
 <?php
+@session_start();
 include('includes/db_connect.php');
+
+// Verifica se o aluno está logado
+$aluno_id = isset($_SESSION['aluno_id']) ? $_SESSION['aluno_id'] : null;
 
 // Cria uma instância da classe Conectar
 $conn = Conectar::getInstance();
 
 // Definir o número de livros por página
-$livrosPorPagina = 12; // Defina o número de livros a serem exibidos por página
-$paginaAtual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1; // Página atual, padrão é 1
+$livrosPorPagina = 12;
+$paginaAtual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1;
 
 // Calcular o offset
 $offset = ($paginaAtual - 1) * $livrosPorPagina;
+
+// Verifica se o modo aleatório foi ativado
+$modoAleatorio = isset($_GET['random']) && $_GET['random'] === '1';
 
 // Consulta para obter o total de livros
 $queryTotal = "SELECT COUNT(*) as total FROM livros";
@@ -19,9 +26,42 @@ $totalLivros = $stmtTotal->fetch(PDO::FETCH_ASSOC)['total'];
 // Calcular o número total de páginas
 $totalPaginas = ceil($totalLivros / $livrosPorPagina);
 
-// Consulta para obter os livros da página atual
-$query = "SELECT * FROM livros LIMIT :limit OFFSET :offset";
-$stmt = $conn->prepare($query);
+// Verifica se existe uma categoria sendo filtrada
+$categoria = isset($_GET['categoria']) ? $_GET['categoria'] : null;
+
+if ($modoAleatorio) {
+    // Modo aleatório
+    $query = "
+        SELECT l.*, 
+               CASE WHEN f.aluno_id IS NOT NULL THEN 1 ELSE 0 END AS favoritado 
+        FROM livros l
+        LEFT JOIN favoritos f ON l.id = f.livro_id AND f.aluno_id = :aluno_id
+        ORDER BY RAND()
+        LIMIT :limit OFFSET :offset";
+    $stmt = $conn->prepare($query);
+} elseif ($categoria) {
+    // Filtrar por categoria
+    $query = "
+        SELECT l.*, 
+               CASE WHEN f.aluno_id IS NOT NULL THEN 1 ELSE 0 END AS favoritado 
+        FROM livros l
+        LEFT JOIN favoritos f ON l.id = f.livro_id AND f.aluno_id = :aluno_id
+        WHERE l.categoria = :categoria
+        LIMIT :limit OFFSET :offset";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':categoria', $categoria, PDO::PARAM_STR);
+} else {
+    // Exibição padrão com paginação
+    $query = "
+        SELECT l.*, 
+               CASE WHEN f.aluno_id IS NOT NULL THEN 1 ELSE 0 END AS favoritado 
+        FROM livros l
+        LEFT JOIN favoritos f ON l.id = f.livro_id AND f.aluno_id = :aluno_id
+        LIMIT :limit OFFSET :offset";
+    $stmt = $conn->prepare($query);
+}
+
+$stmt->bindParam(':aluno_id', $aluno_id, PDO::PARAM_INT);
 $stmt->bindParam(':limit', $livrosPorPagina, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
@@ -30,13 +70,13 @@ $livros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Define o caminho base para os uploads
 $baseUploadPath = 'http://localhost/bookstack/admin/controle/';
 ?>
-
 <link rel="stylesheet" href="css/paginationcss.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="preload" href="css/estilo_home.css" as="style" onload="this.rel='stylesheet'">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style"
+    onload="this.rel='stylesheet'">
 
-<!-- CARROUSEL -->
-<br>
-<div class="container-sm">
+<!-- CAROUSEL RESPONSIVO -->
+<div class="container-fluid p-0">
     <div id="carouselMain" class="carousel slide carousel-dark" data-bs-ride="carousel">
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#carouselMain" data-bs-slide-to="0" class="active bg-dark"></button>
@@ -45,16 +85,13 @@ $baseUploadPath = 'http://localhost/bookstack/admin/controle/';
         </div>
         <div class="carousel-inner">
             <div class="carousel-item active" data-bs-interval="3000">
-                <img src="img/banner1.jpeg" class="d-none d-md-block img-fluid" id="carousel-img" alt="">
-                <img src="img/banner1.jpeg" class="d-block d-md-none img-fluid" id="carousel-img" alt="">
+                <img src="img/banner4.png" class="img-fluid w-100" id="carousel-img" alt="Banner 1">
             </div>
             <div class="carousel-item" data-bs-interval="3000">
-                <img src="img/banner2.jpeg" class="d-none d-md-block img-fluid" id="carousel-img" alt="">
-                <img src="img/banner2.png" class="d-block d-md-none img-fluid" id="carousel-img " alt="">
+                <img src="img/banner5.png" class="img-fluid w-100" id="carousel-img" alt="Banner 2">
             </div>
             <div class="carousel-item" data-bs-interval="3000">
-                <img src="img/banner3.jpeg" class="d-none d-md-block img-fluid" id="carousel-img" alt="">
-                <img src="img/banner1.png" class="d-block d-md-none img-fluid" id="carousel-img" alt="">
+                <img src="img/banner6.png" class="img-fluid w-100" id="carousel-img" alt="Banner 3">
             </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselMain" data-bs-slide="prev">
@@ -66,640 +103,231 @@ $baseUploadPath = 'http://localhost/bookstack/admin/controle/';
             <span class="visually-hidden">Próximo</span>
         </button>
     </div>
-    <style>
-        #carousel-img {
-            height: 400px;
-            /* Altura menor para achatar a imagem */
-            width: 100%;
-            /* Largura total do container */
-            object-fit: cover;
-            /* Ajusta a imagem para cobrir o elemento, mantendo a proporção */
-        }
+</div>
 
-        .pagination-modern {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0;
-        }
 
-        .pagination-modern ul {
-            display: flex;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .pagination-modern ul li {
-            margin: 0 5px;
-        }
-
-        .pagination-modern ul li a,
-        .pagination-modern .prev-modern,
-        .pagination-modern .next-modern {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            min-width: 40px;
-            /* Aumenta a largura mínima dos botões */
-            height: 40px;
-            /* Aumenta a altura dos botões */
-            border-radius: 50%;
-            /* Torna os botões circulares */
-            background-color: #f8f9fa;
-            /* Cor de fundo padrão */
-            color: #333;
-            /* Cor do texto */
-            border: 1px solid #ddd;
-            /* Borda padrão */
-            text-decoration: none;
-            /* Remove a sublinhado dos links */
-            font-size: 16px;
-            /* Aumenta o tamanho da fonte */
-            font-weight: 600;
-            /* Deixa o texto em negrito */
-            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-            /* Adiciona transição suave */
-        }
-
-        .pagination-modern ul li a:hover,
-        .pagination-modern .prev-modern:hover,
-        .pagination-modern .next-modern:hover {
-            background-color: #f7d547;
-            /* Cor de fundo ao passar o mouse */
-            color: #fff;
-            /* Cor do texto ao passar o mouse */
-            transform: scale(1.1);
-            /* Leve aumento ao passar o mouse */
-        }
-
-        .pagination-modern ul li.active-modern a {
-            background-color: #f7d547;
-            /* Cor de fundo para a página ativa */
-            color: #fff;
-            /* Cor do texto para a página ativa */
-            border-color: #f7d547;
-            /* Borda para a página ativa */
-            font-size: 18px;
-            /* Aumenta o tamanho da fonte para destacar */
-            transform: scale(1.2);
-            /* Aumenta o botão ativo */
-        }
-
-        .pagination-modern .prev-modern,
-        .pagination-modern .next-modern {
-            border-radius: 20px;
-            /* Borda arredondada para os botões de navegação */
-            padding: 0 15px;
-            /* Espaçamento horizontal */
-            font-size: 16px;
-            /* Tamanho da fonte */
-            font-weight: bold;
-            /* Negrito */
-        }
-
-        .pagination-modern .prev-modern {
-            margin-right: 10px;
-            /* Espaçamento à direita */
-        }
-
-        .pagination-modern .next-modern {
-            margin-left: 10px;
-            /* Espaçamento à esquerda */
-        }
-
-        /* Oculta o texto dos links de navegação em telas menores */
-        @media (max-width: 576px) {
-
-            .pagination-modern .prev-modern,
-            .pagination-modern .next-modern {
-                font-size: 0;
-                /* Esconde o texto */
-                min-width: 30px;
-                /* Mantém a largura mínima */
-                height: 30px;
-                /* Ajusta a altura */
-                border-radius: 50%;
-                /* Torna os botões circulares */
-            }
-
-            .pagination-modern .prev-modern::after,
-            .pagination-modern .next-modern::after {
-                content: '';
-                /* Remove o conteúdo de texto */
-            }
-        }
-    </style>
-
-    <!-- LIVROS -->
-
-    <div id="carouselMain2" class="carousel slide container-lg mt-4" data-bs-pause="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <div class="container">
-                    <div class="row row-cols-lg-6 row-cols-sm-2 row-cols-md-3 g-3">
-                        <div class="col">
-                            <div class="card shadow-sm">
-
-                                <img src="img/livro1.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <a href="?p=livros/livrosinfo">
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-md btn-outline-warning"
-                                                    style="border-radius: 50px;">Reservar</button>
-                                            </div>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livro2.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <a href="?p=livros/livrosinfo">
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-md btn-outline-warning"
-                                                    style="border-radius: 50px;">Reservar</button>
-                                            </div>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livro3.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livro4.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livro5.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/ivro6.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <div class="container">
-                    <div class="row row-cols-lg-6 row-cols-sm-2 row-cols-md-4 g-3">
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livroex.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livroex.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livroex.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livroex.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livroex.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card shadow-sm">
-                                <img src="img/livroex.jpg" class="bd-placeholder-img card-img-top" width="100%"
-                                    height="230">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-md btn-outline-warning"
-                                                style="border-radius: 50px;">Reservar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- LIVROS RECOMENDADOS -->
+<div class="container mt-5">
+    <div class="section-header text-center mb-4">
+        <h2 class="section-title">
+            <i class="fas fa-book-reader me-2"></i>Livros Recomendados
+        </h2>
+        <p class="section-subtitle">Explore algumas sugestões da nossa biblioteca!</p>
+        <hr class="section-divider">
     </div>
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-4">
+        <?php
+        // Limita a exibição a 6 livros
+        $livrosExibidos = array_slice($livros, 0, 6);
 
-    <div class="pagination_rounded mt-4 d-flex justify-content-center">
-        <ul>
-            <li data-bs-target="#carouselMain2" data-bs-slide="prev">
-                <a href="#" class="prev"> <i class="fa fa-angle-left" aria-hidden="true"></i></a>
-            </li>
-            <li data-bs-target="#carouselMain2" data-bs-slide-to="0">
-                <a href="#"></a>
-            </li>
-            <li class="hidden-xs" data-bs-target="#carouselMain2" data-bs-slide-to="1">
-                <a href="#"></a>
-            </li>
-            <li data-bs-target="#carouselMain2" data-bs-slide="next">
-                <a href="#" class="next"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
-            </li>
-        </ul>
-    </div>
-    <!-- Livros Disponíveis -->
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Livros Disponíveis</h2>
-        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-4">
-            <?php foreach ($livros as $livro): ?>
-                <div class="col">
-                    <div class="card h-100 shadow-sm position-relative">
-                        <!-- A imagem e o corpo do card que leva para a página do livro -->
-                        <a href="livros/livrosinfo.php?id=<?php echo htmlspecialchars($livro['id']); ?>">
-                            <?php if (!empty($livro['capa'])): ?>
-                                <img src="<?php echo $baseUploadPath . $livro['capa']; ?>" class="card-img-top livro-capa"
-                                    alt="Capa do livro">
-                            <?php else: ?>
-                                <img src="controle/uploads/imagem-nao-disponivel.jpg" class="card-img-top livro-capa"
-                                    alt="Capa não disponível">
-                            <?php endif; ?>
+        foreach ($livrosExibidos as $livro): ?>
+            <div class="col">
+                <div class="card h-100 shadow-sm position-relative livro-card">
+                    <!-- Ícone de favorito (canto superior direito do card) -->
+                    <a href="livrosfav.php?id=<?php echo $livro['id']; ?>"
+                        class="favorite-icon position-absolute top-0 end-0 p-2 icon-favoritar"
+                        data-id="<?php echo $livro['id']; ?>"
+                        data-favoritado="<?php echo $livro['favoritado'] ? '1' : '0'; ?>">
+                        <?php if ($livro['favoritado']): ?>
+                            <i class="fas fa-heart text-danger icon-heart" aria-hidden="true"></i>
+                        <?php else: ?>
+                            <i class="far fa-heart icon-heart" aria-hidden="true"></i>
+                        <?php endif; ?>
+                    </a>
+
+                    <!-- Capa do livro e link para mais informações -->
+                    <a href="livros/livrosinfo.php?id=<?php echo htmlspecialchars($livro['id']); ?>">
+                        <?php if (!empty($livro['capa'])): ?>
+                            <img src="<?php echo $baseUploadPath . $livro['capa']; ?>" class="card-img-top livro-capa"
+                                alt="Capa do livro">
+                        <?php else: ?>
+                            <img src="controle/uploads/imagem-nao-disponivel.jpg" class="card-img-top livro-capa"
+                                alt="Capa não disponível">
+                        <?php endif; ?>
+                    </a>
+
+                    <!-- Corpo do card com título e autor -->
+                    <div class="card-body d-flex flex-column">
+                        <a href="livros/livrosinfo.php?id=<?php echo htmlspecialchars($livro['id']); ?>"
+                            class="text-decoration-none text-dark">
+                            <h5 class="card-title text-center"><?php echo htmlspecialchars($livro['titulo']); ?></h5>
+                            <p class="card-text text-muted text-center"><?php echo htmlspecialchars($livro['autor']); ?></p>
                         </a>
 
-                        <div class="card-body d-flex flex-column">
-                            <a href="livros/livrosinfo.php?id=<?php echo htmlspecialchars($livro['id']); ?>"
-                                class="text-decoration-none text-dark">
-                                <h5 class="card-title"><?php echo htmlspecialchars($livro['titulo']); ?></h5>
-                                <p class="card-text"><?php echo htmlspecialchars($livro['autor']); ?></p>
-                            </a>
+                        <!-- Botão de reserva -->
+                        <div class="mt-auto text-center">
+                            <?php
+                            if (isset($_SESSION['aluno_id'])) {
+                                $query = "SELECT * FROM reservas WHERE livro_id = ? AND aluno_id = ? AND status = 'reservado'";
+                                $stmt = $conn->prepare($query);
+                                $stmt->execute([$livro['id'], $_SESSION['aluno_id']]);
 
-                            <!-- Aqui está a lógica para o botão de reserva -->
-                            <div class="mt-auto text-center">
-                                <?php
-                                if (isset($_SESSION['aluno_id'])) {
-                                    $query = "SELECT * FROM reservas WHERE livro_id = ? AND aluno_id = ? AND status = 'reservado'";
-                                    $stmt = $conn->prepare($query);
-                                    $stmt->execute([$livro['id'], $_SESSION['aluno_id']]);
-
-                                    if ($stmt->rowCount() > 0) {
-                                        echo '<button class="btn btn-secondary btn-sm mt-3" disabled>Reservado</button>';
-                                    } else {
-                                        $query = "SELECT COUNT(*) as reservas_ativas FROM reservas WHERE livro_id = ? AND status = 'reservado'";
-                                        $stmt = $conn->prepare($query);
-                                        $stmt->execute([$livro['id']]);
-                                        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-                                        $reservas_ativas = $resultado['reservas_ativas'];
-
-                                        if ($reservas_ativas >= $livro['exemplares']) {
-                                            echo '<button class="btn btn-danger btn-sm mt-3" disabled>Exemplares Máximos Atingidos</button>';
-                                        } else {
-                                            // Botão de reserva com Ajax
-                                            echo '<button class="btn btn-primary btn-sm mt-3" onclick="reservarLivro(' . $livro['id'] . ')">Reservar</button>';
-                                        }
-                                    }
+                                if ($stmt->rowCount() > 0) {
+                                    echo '<button class="btn btn-warning btn-sm mt-3" disabled>Reservado</button>';
                                 } else {
-                                    echo '<button class="btn btn-primary btn-sm mt-3" disabled>Faça login para reservar</button>';
-                                }
-                                ?>
-                            </div>
+                                    $query = "SELECT COUNT(*) as reservas_ativas FROM reservas WHERE livro_id = ? AND status = 'reservado'";
+                                    $stmt = $conn->prepare($query);
+                                    $stmt->execute([$livro['id']]);
+                                    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+                                    $reservas_ativas = $resultado['reservas_ativas'];
 
+                                    if ($reservas_ativas >= $livro['exemplares']) {
+                                        echo '<button class="btn btn-danger btn-sm mt-3" disabled>Exemplares Esgotados</button>';
+                                    } else {
+                                        echo '<a href="livros/reservar.php?id=' . $livro['id'] . '">
+                                              <button class="btn btn-reservar btn-sm mt-3">Reservar</button></a>';
+                                    }
+                                }
+                            } else {
+                                echo '<a href="index.php?p=login">
+                                      <button class="btn btn-reservar btn-sm mt-3">Login para Reservar</button></a>';
+                            }
+                            ?>
                         </div>
                     </div>
                 </div>
-            <?php endforeach; ?>
-        </div>
-        <div class="pagination-modern mt-4 d-flex justify-content-center">
-            <ul>
-                <?php if ($paginaAtual > 1): ?>
-                    <li>
-                        <a href="?pagina=<?php echo $paginaAtual - 1; ?>" class="prev-modern"> <i class="fa fa-angle-left"
-                                aria-hidden="true"></i> Anterior</a>
-                    </li>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
-                    <li class="<?php echo ($i == $paginaAtual) ? 'active-modern' : ''; ?>">
-                        <a href="?pagina=<?php echo $i; ?>"><?php echo $i; ?></a>
-                    </li>
-                <?php endfor; ?>
-
-                <?php if ($paginaAtual < $totalPaginas): ?>
-                    <li>
-                        <a href="?pagina=<?php echo $paginaAtual + 1; ?>" class="next-modern">Próximo <i
-                                class="fa fa-angle-right" aria-hidden="true"></i></a>
-                    </li>
-                <?php endif; ?>
-            </ul>
-        </div>
-
+            </div>
+        <?php endforeach; ?>
     </div>
+</div>
 
-    <style>
-        .btn-reservar {
-            border-radius: 50px;
-            /* Borda arredondada */
-            padding: 0.5rem 1.5rem;
-            /* Ajuste o padding conforme necessário */
-            font-size: 0.9rem;
-            /* Ajuste o tamanho da fonte conforme necessário */
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-        }
+<!-- Seção de Livros Disponíveis -->
+<div data-scroll="livros-disponiveis" class="container mt-5">
+    <div class="section-header text-center mb-4">
+        <h2 class="section-title">
+            <i class="fas fa-book-open me-2"></i>Livros Disponíveis
+        </h2>
+        <p class="section-subtitle">Explore toda a coleção e reserve seus livros favoritos!</p>
+        <hr class="section-divider">
+    </div>
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-4">
+        <?php foreach ($livros as $livro): ?>
+            <div class="col">
+                <div class="card h-100 shadow-sm position-relative livro-card">
+                    <!-- Ícone de favorito (canto superior direito do card) -->
+                    <a href="livrosfav.php?id=<?php echo $livro['id']; ?>"
+                        class="favorite-icon position-absolute top-0 end-0 p-2 icon-favoritar"
+                        data-id="<?php echo $livro['id']; ?>"
+                        data-favoritado="<?php echo $livro['favoritado'] ? '1' : '0'; ?>">
+                        <?php if ($livro['favoritado']): ?>
+                            <i class="fas fa-heart text-danger icon-heart" aria-hidden="true"></i>
+                        <?php else: ?>
+                            <i class="far fa-heart icon-heart" aria-hidden="true"></i>
+                        <?php endif; ?>
+                    </a>
 
-        .btn-reservar:hover {
-            background-color: #0056b3;
-            /* Cor de fundo ao passar o mouse */
-            border-color: #0056b3;
-            /* Cor da borda ao passar o mouse */
-            color: #fff;
-            /* Cor do texto ao passar o mouse */
-        }
+                    <!-- Capa do livro e link para mais informações -->
+                    <a href="livros/livrosinfo.php?id=<?php echo htmlspecialchars($livro['id']); ?>">
+                        <?php if (!empty($livro['capa'])): ?>
+                            <img src="<?php echo $baseUploadPath . $livro['capa']; ?>" class="card-img-top livro-capa"
+                                alt="Capa do livro">
+                        <?php else: ?>
+                            <img src="controle/uploads/imagem-nao-disponivel.jpg" class="card-img-top livro-capa"
+                                alt="Capa não disponível">
+                        <?php endif; ?>
+                    </a>
 
-        .icon-heart {
-            font-size: 24px;
-            color: #fff;
-            /* Cor padrão do coração */
-            background-color: transparent;
-            transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
-        }
+                    <!-- Corpo do card com título e autor -->
+                    <div class="card-body d-flex flex-column">
+                        <a href="livros/livrosinfo.php?id=<?php echo htmlspecialchars($livro['id']); ?>"
+                            class="text-decoration-none text-dark">
+                            <h5 class="card-title text-center"><?php echo htmlspecialchars($livro['titulo']); ?></h5>
+                            <p class="card-text text-muted text-center"><?php echo htmlspecialchars($livro['autor']); ?></p>
+                        </a>
 
-        .icon-favoritar[data-favoritado="1"] .icon-heart {
-            color: #ff0000;
-            /* Fundo vermelho quando favoritado */
-        }
+                        <!-- Botão de reserva -->
+                        <div class="mt-auto text-center">
+                            <?php
+                            if (isset($_SESSION['aluno_id'])) {
+                                // Verificar se o aluno já reservou ou retirou este livro
+                                $query = "SELECT * FROM reservas WHERE livro_id = ? AND aluno_id = ? AND status IN ('reservado', 'retirado')";
+                                $stmt = $conn->prepare($query);
+                                $stmt->execute([$livro['id'], $_SESSION['aluno_id']]);
+                                $reserva_existente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        .livro-capa {
-            width: 100%;
-            height: 200px;
-            /* Altura menor para as capas dos livros */
-            object-fit: cover;
-            /* Mantém a proporção da imagem */
-        }
+                                if ($reserva_existente) {
+                                    echo '<button class="btn btn-reservar btn-sm mt-3" disabled>Reservado</button>';
+                                } else {
+                                    // Verificar o número de reservas ativas para o livro
+                                    $query = "SELECT COUNT(*) as reservas_ativas FROM reservas WHERE livro_id = ? AND status = 'reservado'";
+                                    $stmt = $conn->prepare($query);
+                                    $stmt->execute([$livro['id']]);
+                                    $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+                                    $reservas_ativas = $resultado['reservas_ativas'];
 
-        .card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
-            /* Garante que o card ocupe a largura da coluna */
-            max-width: 200px;
-            /* Define uma largura máxima para o card */
-        }
+                                    if ($reservas_ativas >= $livro['exemplares']) {
+                                        echo '<button class="btn btn-danger btn-sm mt-3" disabled>Exemplares Esgotados</button>';
+                                    } else {
+                                        echo '<button class="btn-reservar btn-sm mt-3" onclick="reservarLivro(' . $livro['id'] . ')">Reservar</button>';
+                                    }
+                                }
+                            } else {
+                                echo '<a href="index.php?p=login"><button class="btn btn-reservar btn-sm mt-3">Faça login para reservar</button></a>';
+                            }
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
 
-        .card-body {
-            padding: 0.75rem;
-        }
+<div class="pagination-modern mt-4 d-flex justify-content-center">
+    <ul>
+        <?php if ($paginaAtual > 1): ?>
+            <li>
+                <a href="?pagina=<?php echo $paginaAtual - 1; ?>" class="prev-modern"> <i class="fa fa-angle-left"
+                        aria-hidden="true"></i> Anterior</a>
+            </li>
+        <?php endif; ?>
 
-        .card-title,
-        .card-text {
-            margin: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            /* Impede que o texto ultrapasse o limite do card */
-        }
+        <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+            <li class="<?php echo ($i == $paginaAtual) ? 'active-modern' : ''; ?>">
+                <a href="?pagina=<?php echo $i; ?>"><?php echo $i; ?></a>
+            </li>
+        <?php endfor; ?>
 
-        .card-title {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            line-height: 1.2;
-            /* Ajuste para um melhor espaçamento */
-        }
+        <?php if ($paginaAtual < $totalPaginas): ?>
+            <li>
+                <a href="?pagina=<?php echo $paginaAtual + 1; ?>" class="next-modern">Próximo <i class="fa fa-angle-right"
+                        aria-hidden="true"></i></a>
+            </li>
+        <?php endif; ?>
+    </ul>
+</div>
 
-        .card-text {
-            font-size: 0.75rem;
-            color: #555;
-        }
+</div>
 
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
+<style>
 
-        .btn-outline-secondary {
-            color: #6c757d;
-            border-color: #6c757d;
-        }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function reservarLivro(livro_id) {
+        console.log('Tentativa de reservar o livro com ID:', livro_id);  // Depuração inicial
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #004085;
-        }
+        Swal.fire({
+            title: 'Confirmação de Reserva',
+            text: "Tem certeza que deseja reservar este livro?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, reservar!',
+            cancelButtonText: 'Cancelar',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log('Usuário confirmou a reserva. Enviando requisição Ajax para reservar...');  // Depuração após confirmação
 
-        .btn-outline-secondary:hover {
-            color: #495057;
-            border-color: #495057;
-        }
+                // Faz a requisição Ajax para reservar o livro
+                $.ajax({
+                    url: 'livros/reservar.php',
+                    type: 'POST',
+                    data: { livro_id: livro_id },
+                    success: function (response) {
+                        console.log('Resposta do servidor ao reservar:', response);  // Depuração da resposta do servidor
 
-        .position-absolute {
-            position: absolute;
-        }
-
-        .top-0 {
-            top: 0;
-        }
-
-        .end-0 {
-            right: 0;
-        }
-
-        .p-2 {
-            padding: 0.5rem;
-        }
-
-        .rounded-circle {
-            border-radius: 50%;
-        }
-
-        .mt-auto {
-            margin-top: auto;
-        }
-
-        .pagination_rounded {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .pagination_rounded ul {
-            display: flex;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .pagination_rounded ul li {
-            margin: 0 5px;
-        }
-
-        .pagination_rounded ul li a {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: gray;
-            color: #4285f4;
-            border: 1px solid #e0e0e0;
-            text-decoration: none;
-            font-size: 12px;
-            line-height: 20px;
-            transition: background-color 0.3s, color 0.3s, border 0.3s;
-        }
-
-        .pagination_rounded ul li a:hover {
-            background-color: #f7d547;
-            color: #fff;
-            border: 1px solid #f7d547;
-        }
-
-        .pagination_rounded ul li.active a {
-            background-color: #f7d547;
-            color: #fff;
-            border: 1px solid #f7d547;
-        }
-
-        .pagination_rounded .prev,
-        .pagination_rounded .next {
-            width: 70px;
-            height: 28px;
-            border-radius: 35px;
-            background-color: gray;
-            color: black;
-            line-height: 28px;
-            text-align: center;
-            font-size: 14px;
-            text-decoration: none;
-            transition: background-color 0.3s, color 0.3s, border 0.3s;
-        }
-
-        .pagination_rounded .prev:hover,
-        .pagination_rounded .next:hover {
-            background-color: #f7d547;
-            color: #fff;
-        }
-
-        .visible-xs {
-            display: none !important;
-        }
-    </style>
-    <script>
-        function reservarLivro(livro_id) {
-            Swal.fire({
-                title: 'Confirmação de Reserva',
-                text: "Tem certeza que deseja reservar este livro?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sim, reservar!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Faz a requisição Ajax para reservar o livro
-                    $.ajax({
-                        url: 'livros/reservar.php',
-                        type: 'POST',
-                        data: { livro_id: livro_id },
-                        success: function (response) {
+                        if (response.status === 'success') {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Reservado com sucesso!',
@@ -708,62 +336,140 @@ $baseUploadPath = 'http://localhost/bookstack/admin/controle/';
                                 timer: 2000
                             });
 
-                            // Atualizar a página ou o botão de reserva após o sucesso
                             setTimeout(function () {
-                                location.reload(); // Atualiza a página após a reserva
+                                location.reload();  // Atualiza a página após a reserva
                             }, 2000);
-                        },
-                        error: function () {
+                        } else if (response.status === 'punido') {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Erro',
-                                text: 'Houve um erro ao reservar o livro. Tente novamente.',
+                                title: 'Punição Aplicada!',
+                                text: `Você não pode reservar livros pelas próximas 5 horas.`,
+                                showConfirmButton: true
+                            });
+                        } else if (response.status === 'max_exemplares') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Exemplares Esgotados!',
+                                text: 'Não há mais exemplares disponíveis para reserva.',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        } else if (response.status === 'already_reserved') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Já Reservado!',
+                                text: 'Você já reservou este livro.',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        } else if (response.status === 'wait_time') {
+                            let horas_restantes = response.horas_restantes; // Pegamos a propriedade correta do objeto
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Aguarde!',
+                                text: `Você deve esperar ${horas_restantes} horas para reservar este livro novamente.`,
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro ao reservar!',
+                                text: 'Ocorreu um problema ao reservar o livro. Tente novamente.',
                                 showConfirmButton: false,
                                 timer: 2000
                             });
                         }
-                    });
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const icons = document.querySelectorAll('.icon-favoritar');
-
-            icons.forEach(icon => {
-                icon.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    const url = icon.getAttribute('href');
-                    const isFavoritado = icon.getAttribute('data-favoritado') === '1';
-                    const newStatus = isFavoritado ? 'unfavorite' : 'favorite'; // Envia a ação correta
-                    const livroId = icon.getAttribute('data-id'); // Adiciona o ID do livro
-
-                    // Atualiza o estado visual
-                    icon.setAttribute('data-favoritado', isFavoritado ? '0' : '1');
-                    icon.querySelector('.icon-heart').classList.toggle('favoritado', !isFavoritado);
-
-                    // Envia a requisição AJAX para atualizar o estado no servidor
-                    fetch('controle/favoritar.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `id=${encodeURIComponent(livroId)}&action=${encodeURIComponent(newStatus)}`
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status === 'success') {
-                                console.log('Favoritação atualizada com sucesso.');
-                            } else {
-                                console.error('Erro ao atualizar favoritação:', data.status);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erro ao atualizar favoritação:', error);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Erro ao enviar requisição Ajax:', xhr.responseText);  // Depuração de erro no AJAX
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro!',
+                            text: 'Houve um erro ao reservar o livro. Tente novamente.',
+                            showConfirmButton: false,
+                            timer: 2000
                         });
+                    }
                 });
+            } else {
+                console.log('Usuário cancelou a reserva.');  // Depuração caso o usuário cancele a reserva
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('Página carregada. Iniciando o processo de adicionar eventos aos ícones de favoritar...');  // Depuração inicial ao carregar a página
+
+        document.querySelectorAll('.icon-favoritar').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                var button = this;
+                var livroId = button.getAttribute('data-id');
+                var isFavoritado = button.getAttribute('data-favoritado') === '1';
+                var action = isFavoritado ? 'unfavorite' : 'favorite';
+
+                console.log(`Favoritar/Desfavoritar livro com ID: ${livroId}, Ação: ${action}`);  // Depuração ao clicar no ícone de favoritar/desfavoritar
+
+                // Faz a requisição AJAX para favoritar/desfavoritar
+                fetch('controle/favoritar.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `livro_id=${encodeURIComponent(livroId)}&action=${encodeURIComponent(action)}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Resposta do servidor ao favoritar/desfavoritar:', data);  // Depuração da resposta do servidor
+
+                        if (data.status === 'success') {
+                            // Atualizar visualmente o botão de favoritar/desfavoritar
+                            button.setAttribute('data-favoritado', isFavoritado ? '0' : '1');
+                            button.querySelector('.icon-heart').classList.toggle('fas', !isFavoritado);
+                            button.querySelector('.icon-heart').classList.toggle('far', isFavoritado);
+                        } else {
+                            console.error('Erro ao favoritar/desfavoritar:', data.message);  // Depuração de erro ao favoritar
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Ops...',
+                                text: 'Faça login para favoritar livros!',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao enviar requisição ao favoritar/desfavoritar:', error);  // Depuração de erro no fetch
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro!',
+                            text: 'Erro ao favoritar/desfavoritar o livro.',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    });
             });
         });
+    });
 
-    </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    function filterByCategory(category) {
+        console.log('Filtrando por categoria:', category);  // Depuração ao filtrar por categoria
+        window.location.href = `?categoria=${category}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+        const scrollTarget = params.get('scroll'); // Obtém o valor de 'scroll'
+
+        if (scrollTarget) {
+            const section = document.querySelector(`[data-scroll="${scrollTarget}"]`);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    });
+
+
+</script>

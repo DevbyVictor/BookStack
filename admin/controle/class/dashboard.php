@@ -50,6 +50,9 @@ class Dashboard
                 case 'consultar_livros':
                     include_once 'consultar_livros.php';
                     break;
+                case 'editar_alunos':
+                    include_once 'editar_alunos.php';
+                    break;
                 case 'editar_livro':
                     include_once 'editar_livros.php';
                     break;

@@ -1,0 +1,410 @@
+#carousel-img {
+    height: 400px;
+    /* Altura menor para achatar a imagem */
+    width: 100%;
+    /* Largura total do container */
+    object-fit: cover;
+    /* Ajusta a imagem para cobrir o elemento, mantendo a proporção */
+}
+
+.pagination-modern {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pagination-modern ul {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pagination-modern ul li {
+    margin: 0 5px;
+}
+
+.pagination-modern ul li a,
+.pagination-modern .prev-modern,
+.pagination-modern .next-modern {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 40px;
+    /* Aumenta a largura mínima dos botões */
+    height: 40px;
+    /* Aumenta a altura dos botões */
+    border-radius: 50%;
+    /* Torna os botões circulares */
+    background-color: #f8f9fa;
+    /* Cor de fundo padrão */
+    color: #333;
+    /* Cor do texto */
+    border: 1px solid #ddd;
+    /* Borda padrão */
+    text-decoration: none;
+    /* Remove a sublinhado dos links */
+    font-size: 16px;
+    /* Aumenta o tamanho da fonte */
+    font-weight: 600;
+    /* Deixa o texto em negrito */
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    /* Adiciona transição suave */
+}
+
+.pagination-modern ul li a:hover,
+.pagination-modern .prev-modern:hover,
+.pagination-modern .next-modern:hover {
+    background-color: #f7d547;
+    /* Cor de fundo ao passar o mouse */
+    color: #fff;
+    /* Cor do texto ao passar o mouse */
+    transform: scale(1.1);
+    /* Leve aumento ao passar o mouse */
+}
+
+.pagination-modern ul li.active-modern a {
+    background-color: #f7d547;
+    /* Cor de fundo para a página ativa */
+    color: #fff;
+    /* Cor do texto para a página ativa */
+    border-color: #f7d547;
+    /* Borda para a página ativa */
+    font-size: 18px;
+    /* Aumenta o tamanho da fonte para destacar */
+    transform: scale(1.2);
+    /* Aumenta o botão ativo */
+}
+
+.pagination-modern .prev-modern,
+.pagination-modern .next-modern {
+    border-radius: 20px;
+    /* Borda arredondada para os botões de navegação */
+    padding: 0 15px;
+    /* Espaçamento horizontal */
+    font-size: 16px;
+    /* Tamanho da fonte */
+    font-weight: bold;
+    /* Negrito */
+}
+
+.pagination-modern .prev-modern {
+    margin-right: 10px;
+    /* Espaçamento à direita */
+}
+
+.pagination-modern .next-modern {
+    margin-left: 10px;
+    /* Espaçamento à esquerda */
+}
+
+/* Oculta o texto dos links de navegação em telas menores */
+@media (max-width: 576px) {
+
+    .pagination-modern .prev-modern,
+    .pagination-modern .next-modern {
+        font-size: 0;
+        /* Esconde o texto */
+        min-width: 30px;
+        /* Mantém a largura mínima */
+        height: 30px;
+        /* Ajusta a altura */
+        border-radius: 50%;
+        /* Torna os botões circulares */
+    }
+
+    .pagination-modern .prev-modern::after,
+    .pagination-modern .next-modern::after {
+        content: '';
+        /* Remove o conteúdo de texto */
+    }
+}
+
+.btn-reservar {
+    border-radius: 50px;
+    /* Borda arredondada */
+    padding: 0.5rem 1.5rem;
+    /* Ajuste o padding conforme necessário */
+    font-size: 0.9rem;
+    /* Ajuste o tamanho da fonte conforme necessário */
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.btn-reservar:hover {
+    background-color: #0056b3;
+    /* Cor de fundo ao passar o mouse */
+    border-color: #0056b3;
+    /* Cor da borda ao passar o mouse */
+    color: #fff;
+    /* Cor do texto ao passar o mouse */
+}
+
+.icon-heart {
+    font-size: 24px;
+    color: #ff0000; /* Cor vermelha padrão do coração */
+    background-color: transparent;
+    transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.icon-favoritar[data-favoritado="1"] .icon-heart {
+    color: #ff0000; /* Vermelho quando favoritado */
+}
+
+.livro-capa {
+    width: 100%;
+    /* A largura da imagem vai ocupar 100% do card */
+    height: 250px;
+    /* Altura fixa para todas as imagens */
+    object-fit: cover;
+    /* Mantém a proporção e preenche o container */
+    border-radius: 5px;
+    /* Bordas arredondadas, opcional */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Adiciona uma leve sombra */
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    /* Garante que o card ocupe a largura da coluna */
+    max-width: 200px;
+    /* Define uma largura máxima para o card */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+    padding: 0.75rem;
+}
+
+.card-title,
+.card-text {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* Impede que o texto ultrapasse o limite do card */
+}
+
+.card-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+    /* Ajuste para um melhor espaçamento */
+}
+
+.card-text {
+    font-size: 0.75rem;
+    color: #555;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.btn-outline-secondary:hover {
+    color: #495057;
+    border-color: #495057;
+}
+
+.position-absolute {
+    position: absolute;
+}
+
+.top-0 {
+    top: 0;
+}
+
+.end-0 {
+    right: 0;
+}
+
+.p-2 {
+    padding: 0.5rem;
+}
+
+.rounded-circle {
+    border-radius: 50%;
+}
+
+.mt-auto {
+    margin-top: auto;
+}
+
+.pagination_rounded {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pagination_rounded ul {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pagination_rounded ul li {
+    margin: 0 5px;
+}
+
+.pagination_rounded ul li a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: gray;
+    color: #4285f4;
+    border: 1px solid #e0e0e0;
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 20px;
+    transition: background-color 0.3s, color 0.3s, border 0.3s;
+}
+
+.pagination_rounded ul li a:hover {
+    background-color: #f7d547;
+    color: #fff;
+    border: 1px solid #f7d547;
+}
+
+.pagination_rounded ul li.active a {
+    background-color: #f7d547;
+    color: #fff;
+    border: 1px solid #f7d547;
+}
+
+.pagination_rounded .prev,
+.pagination_rounded .next {
+    width: 70px;
+    height: 28px;
+    border-radius: 35px;
+    background-color: gray;
+    color: black;
+    line-height: 28px;
+    text-align: center;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s, border 0.3s;
+}
+
+.pagination_rounded .prev:hover,
+.pagination_rounded .next:hover {
+    background-color: #f7d547;
+    color: #fff;
+}
+
+.visible-xs {
+    display: none !important;
+}
+
+.btn-reservar {
+    background-color: rgba(0, 0, 0, 0.05);
+    /* Fundo sutil translúcido */
+    color: #333;
+    /* Texto em cinza escuro */
+    border: 1px solid black;
+    /* Borda preta */
+    padding: 8px 20px;
+    /* Tamanho compacto */
+    border-radius: 20px;
+    /* Bordas suavemente arredondadas */
+    font-size: 14px;
+    /* Tamanho de fonte menor */
+    font-weight: 500;
+    /* Peso de texto moderado */
+    letter-spacing: 0.5px;
+    /* Espaçamento suave entre letras */
+    transition: all 0.2s ease;
+    /* Transição suave */
+    cursor: pointer;
+    /* Ícone de mãozinha */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* Sombra leve */
+}
+
+/* Efeito ao passar o mouse */
+.btn-reservar:hover {
+    background-color: #ffae42;
+    /* Leve fundo amarelo ao passar o mouse */
+    color: #fff;
+    /* Texto branco */
+    border-color: black;
+    /* Borda preta permanece */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    /* Sombra suave ao passar o mouse */
+}
+
+/* Efeito ao clicar */
+.btn-reservar:active {
+    transform: scale(0.98);
+    /* Leve redução ao clicar */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* Reduz a sombra ao clicar */
+}
+
+/* Botão desabilitado */
+.btn-reservar:disabled {
+    opacity: 0.6;
+    /* Botão desabilitado fica mais claro */
+    cursor: not-allowed;
+    /* Cursor desabilitado */
+    background-color: rgba(0, 0, 0, 0.05);
+    /* Mantém o fundo translúcido */
+    border-color: rgba(0, 0, 0, 0.1);
+    /* Borda mais clara */
+    color: rgba(0, 0, 0, 0.3);
+    /* Texto desbotado */
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #333;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.section-title i {
+    color: #f7d547; /* Ícone com destaque na cor */
+}
+
+.section-subtitle {
+    font-size: 1rem;
+    color: #555;
+    margin-top: 5px;
+    font-weight: 400;
+}
+
+.section-divider {
+    width: 80px;
+    height: 3px;
+    background-color: #f7d547;
+    margin: 15px auto 0;
+    border-radius: 5px;
+}

@@ -9,10 +9,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $telefone = $_POST['telefone'];
     $foto = null;
 
-    // Verifica se foi enviado um arquivo
+    // Diretório físico correto (relativo ao local do script atual)
+    $uploadDir = '../uploads/';
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
-        $foto = 'uploads/' . basename($_FILES['foto']['name']);
-        move_uploaded_file($_FILES['foto']['tmp_name'], $foto);
+        $fotoNome = basename($_FILES['foto']['name']);
+        $fotoCaminhoFisico = $uploadDir . $fotoNome;
+        $fotoCaminhoBanco = 'uploads/' . $fotoNome; // Caminho que será salvo no banco
+
+        // Move o arquivo enviado para o diretório correto
+        if (move_uploaded_file($_FILES['foto']['tmp_name'], $fotoCaminhoFisico)) {
+            $foto = $fotoCaminhoBanco; // Salva o caminho relativo no banco
+        } else {
+            echo "Erro ao salvar o arquivo.";
+            exit();
+        }
     }
 
     try {

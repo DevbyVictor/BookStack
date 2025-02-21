@@ -7,6 +7,6 @@ session_destroy(); // Destroi a sessão
 // Debug para verificar se a sessão foi destruída
 echo "Sessão destruída.";
 
-header('Location: index.php?p=login');
+header(header: 'Location: index.php?p=login');
 exit();
 ?>

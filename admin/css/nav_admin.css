@@ -1,34 +1,116 @@
-/* custom.css */
-
-/* Estilo da barra lateral */
-.sidebar {
-    background-color: #6c757d; /* Cor cinza */
-    height: 100vh; /* Altura total da tela */
-    color: white; /* Cor do texto branca */
-    font-size: 0.9rem; /* Tamanho da fonte reduzido */
+/* Estilo geral */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    /* Fundo claro */
 }
 
-.sidebar .nav-link {
-    color: white; /* Cor dos links brancos */
+/* Navbar */
+.navbar {
+    background: linear-gradient(90deg, #343a40, #495057);
+    /* Gradiente escuro */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Sombra leve */
 }
 
-.sidebar .nav-link.active {
-    background-color: #5a6268; /* Cor cinza escuro para o link ativo */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+    color: #f7d547 !important;
+    /* Destaque com cor amarela */
 }
 
-.accordion-button {
-    color: white;
-    background-color: #6c757d;
-    font-size: 1.3rem; /* Tamanho da fonte reduzido */
+/* Botões da Navbar */
+.btn-rounded {
+    border-radius: 50px;
+    /* Bordas arredondadas */
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Espaçamento entre ícone e texto */
 }
 
-.accordion-button:not(.collapsed) {
-    color: white;
-    background-color: #5a6268;
+.btn-rounded i {
+    font-size: 1.2rem;
+    /* Tamanho do ícone */
 }
 
-.accordion-body {
-    background-color: #5a6268;
-    color: white;
-    font-size: 1.0rem; /* Tamanho da fonte reduzido */
+/* Alinhamento Horizontal no Menu Colapsável */
+.navbar-nav .nav-item {
+    display: inline-block;
+    /* Garante alinhamento horizontal */
+    margin: 0 5px;
+    /* Espaçamento horizontal entre botões */
 }
+
+/* Espaçamento vertical nos botões */
+.navbar-nav .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    margin: 10px 0;
+    /* Espaçamento vertical */
+}
+
+/* Alinhamento dos itens no menu colapsado */
+.navbar-collapse {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Responsividade */
+
+/* Telas pequenas: exibe botão Menu */
+@media (max-width: 992px) {
+    .navbar-nav {
+        flex-direction: row;
+        /* Alinha horizontalmente */
+        justify-content: center;
+        /* Centraliza os botões */
+        gap: 10px;
+        /* Espaçamento ajustado */
+    }
+
+    .navbar .btn-outline-light {
+        display: inline-flex;
+        /* Exibe o botão Menu */
+    }
+
+    .navbar .btn-outline-danger {
+        display: inline-flex;
+        /* Exibe o botão Sair */
+    }
+}
+
+/* Telas grandes: oculta o botão Menu */
+@media (min-width: 992px) {
+    .navbar .btn-outline-light {
+        display: none;
+        /* Oculta o botão Menu */
+    }
+}
+
+/* Oculta o botão Menu em telas grandes e médias */
+@media (min-width: 768px) {
+    .navbar .btn-outline-light {
+        display: none;
+        /* Oculta o botão Menu */
+    }
+}
+
+/* Exibe o botão Menu apenas em telas menores que 768px */
+@media (max-width: 767px) {
+    .navbar .btn-outline-light {
+        display: inline-flex;
+        /* Exibe o botão Menu */
+    }
+}
+

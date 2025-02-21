@@ -12,3 +12,4 @@ require_once 'class/Dashboard.php';
 $dashboard = new Dashboard();
 $dashboard->render();
 ?>
+
